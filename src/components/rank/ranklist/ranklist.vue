@@ -81,13 +81,16 @@
       <span class="rank-title-item-span">巅峰榜</span>
       <div id="top-rank-list">
         <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
-        <rank class="top-rank-item"></rank>
-        <rank class="top-rank-item"></rank>
-        <rank class="top-rank-item"></rank>
-        <rank class="top-rank-item"></rank>
-        <rank class="top-rank-item"></rank>
-        <rank class="top-rank-item"></rank>
-        <rank class="top-rank-item"></rank>
+        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
+        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
+        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
+        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
+        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
+        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
+        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
+        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
+        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
+        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
       </div>
     </div>
   </div>

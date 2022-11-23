@@ -10,9 +10,9 @@
         <div class="audio-right">
           <span class="audio-song-singer-span">慢冷 - 梁静茹</span>
           <div class="audio-button-box">
-            <van-icon name="play" size="1.5rem" color="#FFF" v-show="!isPlayer" @click="playerMusic" class="audio-button-box-i"/>
+            <van-icon name="play" size="1.5rem" color="#FFF" v-show="!isPlayer" @click="realPlayerMusic" class="audio-button-box-i"/>
             <van-icon name="pause" size="1.5rem" color="#FFF" v-show="isPlayer" @click="stopMusic" class="audio-button-box-i"/>
-            <van-icon name="wap-nav" size="1.5rem" color="#FFF"/>
+            <van-icon name="wap-nav" size="1.5rem" color="#FFF" id="audio-list-button"/>
           </div>
           <div class="audio-progress">
             <van-progress :percentage="progressTage" v-show="progressTage" pivot-color="#7232dd" color="linear-gradient(to right, #e8d58d, #dbb833)" stroke-width="3" :show-pivot="false"/>
@@ -35,9 +35,11 @@
 <script>
 import {onMounted, ref} from "vue";
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 export default {
   name: "index",
   setup() {
+    let store = useStore()
     let router = useRouter()
     let navNum = ref(0)
     let isPlayer = ref(false)
@@ -48,29 +50,53 @@ export default {
       { src: '/song/manleng.mp3' }
     ])
     onMounted(() => {
-      audio.value.src = songList.value[0].src
+      if(store.getters.isPlay) {
+        if (store.getters.currentSongSrc) {
+          audio.value.src = store.getters.currentSongSrc
+          audio.value.currentTime = store.getters.currentTime
+        }
+        playerMusic()
+      } else {
+        audio.value.src = store.getters.songList[0].src
+      }
+      store.commit('changeCurrentSongSrc', audio.value.src)
     })
     function changeNavNum(num, path) {
       navNum.value = num
       router.push(path)
     }
+    function realPlayerMusic() {
+      event.cancelBubble = true
+      playerMusic()
+    }
     function playerMusic() {
-      isPlayer.value = !isPlayer.value
+
+      store.commit('changeIsPlay', true)
+      isPlayer.value = true
       audio.value.play()
       computeTime = setInterval(() => {
-        progressTage.value = (audio.value.currentTime / audio.value.duration) * 100
+        if (audio.value.currentTime !== null) {
+          progressTage.value = (audio.value.currentTime / audio.value.duration) * 100
+          store.commit('changeCurrentTime', audio.value.currentTime)
+        } else {
+          progressTage.value = 0
+        }
+        store.commit('changeProgressTage', progressTage.value)
         if(progressTage.value >= 100) {
           stopMusic()
         }
       }, 100)
     }
     function stopMusic() {
-      isPlayer.value = !isPlayer.value
+      event.cancelBubble = true
+      store.commit('changeIsPlay', false)
+      isPlayer.value = false
       audio.value.pause()
       clearInterval(computeTime)
     }
     function toPlay() {
       router.push('/play')
+      clearInterval(computeTime)
     }
     return {
       isPlayer,
@@ -79,10 +105,12 @@ export default {
       songList,
       progressTage,
       computeTime,
+      store,
       changeNavNum,
       playerMusic,
       stopMusic,
-      toPlay
+      toPlay,
+      realPlayerMusic
     }
   }
 }
@@ -130,11 +158,23 @@ export default {
     font-size: 14px;
     float: left;
   }
+  #audio-list-button{
+    float: right;
+    height: 100%;
+    width: 24px;
+  }
   .audio-button-box-i{
+    float: right;
+    display: block;
+    width: 24px;
+    height: 100%;
     margin: 0 8px;
+    position: absolute;
+    right: 18px;
   }
   .audio-button-box{
-    margin-left: 100px;
+    position: absolute;
+    right: 10px;
   }
   .audio-progress{
     width: 263px;

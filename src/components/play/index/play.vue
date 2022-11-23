@@ -62,17 +62,19 @@
         </div>
       </div>
     </div>
-    <van-action-sheet v-model:show="show" :actions="songList" @select="onSelect" cancel-text="关闭"/>
+    <van-action-sheet v-model:show="show" :actions="store.getters.songList" @select="onSelect" cancel-text="关闭"/>
   </div>
 </template>
 
 <script>
-import {onMounted, ref} from "vue";
-import {useRouter} from "vue-router";
-import {Toast} from "vant";
+import {onMounted, ref} from "vue"
+import {useRouter} from "vue-router"
+import {Toast} from "vant"
+import {useStore} from "vuex"
 export default {
   name: "play",
   setup() {
+    let store = useStore()
     let finished = ref(true)
     let loading = ref(false)
     let currentTime = ref('00:00')
@@ -89,16 +91,29 @@ export default {
     let show = ref(false)
     let showReplay = ref(false)
     let loop = ref(false)
-    let songList = ref([
-      { src: '/song/manleng.mp3', id: 1, 'name': '慢冷 - 梁静茹' },
-      { src: '/song/LilNasX-STARWALKIN(LeagueofLegendsWorldsAnthem).mp3', id: 2, 'name': 'STARWALKIN - LilNasX' }
-    ])
+    // let songList = ref([
+    //   { src: '/song/manleng.mp3', id: 1, 'name': '慢冷 - 梁静茹' },
+    //   { src: '/song/LilNasX-STARWALKIN(LeagueofLegendsWorldsAnthem).mp3', id: 2, 'name': 'STARWALKIN - LilNasX' }
+    // ])
     onMounted(() => {
-      audio.value.src = songList.value[0].src
+      if (store.getters.isPlay) {
+        audio.value.src = store.getters.currentSongSrc
+        playerMusic()
+      } else {
+        audio.value.src = store.getters.songList[0].src
+      }
       totalTime.value = audio.value.duration
+      if (store.getters.progressTage) {
+        progressTage.value = store.getters.progressTage
+      }
+      if (store.getters.currentTime) {
+        audio.value.currentTime = store.getters.currentTime
+      }
     })
     function back() {
       router.go(-1)
+      clearInterval(computeTime)
+      clearInterval(timer)
     }
     function loadFinish() {
       let min = audio.value.duration / 60
@@ -106,10 +121,17 @@ export default {
       totalTime.value = min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
     }
     function playerMusic() {
+      store.commit('changeIsPlay', true)
       isPlayer.value = true
       audio.value.play()
       computeTime = setInterval(() => {
-        progressTage.value = (audio.value.currentTime / audio.value.duration) * 100
+        if (audio.value.currentTime !== null) {
+          progressTage.value = (audio.value.currentTime / audio.value.duration) * 100
+          store.commit('changeCurrentTime', audio.value.currentTime)
+        } else {
+          progressTage.value = 0
+        }
+        store.commit('changeProgressTage', progressTage.value)
         if(progressTage.value >= 100) {
           nextSong()
         }
@@ -125,6 +147,7 @@ export default {
       }, 1000)
     }
     function stopMusic() {
+      store.commit('changeIsPlay', false)
       isPlayer.value = false
       audio.value.pause()
       clearInterval(computeTime)
@@ -134,17 +157,20 @@ export default {
       let currentProgress = progressTageRef.value.value
       let redirectTime = currentProgress / 360
       audio.value.currentTime = audio.value.duration * redirectTime
+      store.commit('changeCurrentTime', audio.value.currentTime)
       progressTage.value = Number((redirectTime * 100).toFixed(2))
+      store.commit('changeProgressTage', progressTage.value)
       playerMusic()
     }
     function nextSong() {
       let src = audio.value.src.substring(audio.value.src.lastIndexOf('/') + 1, audio.value.src.length)
       stopMusic()
-      songList.value.forEach((song, index) => {
+      store.getters.songList.forEach((song, index) => {
         let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
         if (subSrc === src) {
-          if(index < songList.value.length - 1) {
-            audio.value.src = songList.value[index + 1].src
+          if(index < store.getters.songList.length - 1) {
+            audio.value.src = store.getters.songList[index + 1].src
+            store.commit('changeCurrentSongSrc', audio.value.src)
             playerMusic()
           } else {
             Toast('已经是最后一首了')
@@ -161,11 +187,12 @@ export default {
     function previous() {
       let src = audio.value.src.substring(audio.value.src.lastIndexOf('/') + 1, audio.value.src.length)
       stopMusic()
-      songList.value.forEach((song, index) => {
+      store.getters.songList.forEach((song, index) => {
         let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
         if (subSrc === src) {
           if(index - 1 > -1) {
-            audio.value.src = songList.value[index -1].src
+            audio.value.src = store.getters.songList[index -1].src
+            store.commit('changeCurrentSongSrc', audio.value.src)
           } else {
             Toast('已经是第一首了')
           }
@@ -175,7 +202,7 @@ export default {
     }
     function showSongList() {
       let src = audio.value.src.substring(audio.value.src.lastIndexOf('/') + 1, audio.value.src.length)
-      songList.value.forEach((song) => {
+      store.getters.songList.forEach((song) => {
         song.color = ''
         let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
         if (subSrc === src) {
@@ -187,7 +214,7 @@ export default {
     function onSelect(item) {
       audio.value.src = item.src
       let src = audio.value.src.substring(audio.value.src.lastIndexOf('/') + 1, audio.value.src.length)
-      songList.value.forEach((song) => {
+      store.getters.songList.forEach((song) => {
         song.color = ''
         let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
         if (subSrc === src) {
@@ -209,6 +236,8 @@ export default {
     }
     function toComment() {
       router.push('/comment')
+      clearInterval(computeTime)
+      clearInterval(timer)
     }
     return {
       finished,
@@ -220,13 +249,13 @@ export default {
       progressTage,
       audio,
       router,
-      songList,
       currentTime,
       totalTime,
       progressTageRef,
       show,
       showReplay,
       loop,
+      store,
       playerMusic,
       stopMusic,
       back,

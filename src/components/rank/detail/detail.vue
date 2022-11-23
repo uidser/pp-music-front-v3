@@ -1,16 +1,19 @@
 <template>
   <div>
     <div class="play-title-box">
-      <van-icon name="cross" size="1.5rem" color="#FFF" style="float: left" class="play-title-icon" @click="back"/>
+      <van-icon name="arrow-left" size="1.5rem" color="#FFF" style="float: left" class="play-title-icon" @click="back"/>
       <span class="play-title-span"><strong>流行指数榜</strong></span>
-      <van-icon name="share" size="1.5rem" color="#FFF" style="float: right" class="play-title-icon"/>
+      <van-icon name="share" size="1.5rem" color="#FFF" style="float: right" class="play-title-icon" @click="share"/>
     </div>
     <div id="clear-float-both"></div>
     <div></div>
     <div id="rank-introduction">
       <div id="introduction-content">
-        <span id="rank-title"><strong>巅峰榜 - </strong></span>
-        <span id="update-periodicity"><strong>每日更新</strong></span>
+        <div id="rank-title-box">
+          <span id="rank-title"><strong>巅峰榜</strong></span>
+          <span id="split-span">&nbsp;-&nbsp;</span>
+          <span id="update-periodicity"><strong>每日更新</strong></span>
+        </div>
         <div id="rank-profile-picture-box">
           <div id="rank-profile-picture">
             <img src="/img/manleng-album.png" width="90"/>
@@ -33,32 +36,26 @@
         </div>
       </div>
       <div id="rank-list">
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
-        <song></song>
+        <song v-for="song in 300" :key="song" :rank-number="song"></song>
       </div>
     </div>
+    <van-share-sheet
+      v-model:show="showShare"
+      :options="options"
+      title="立即分享给好友"
+      :description="shareDescription"
+      @select="selectOption"
+    />
   </div>
 </template>
 
 <script>
-import {onMounted, ref} from "vue";
+import {onMounted, ref} from "vue"
 import {useRouter} from "vue-router"
 import Topbacknav from "@/components/publiccomponent/topbacknav/topbacknav"
-import song from "@/components/publiccomponent/song/song";
+import song from "@/components/publiccomponent/song/song"
+import useClipboard from 'vue-clipboard3'
+import {Toast} from "vant";
 export default {
   name: "detail",
   components: {
@@ -66,6 +63,11 @@ export default {
     song
   },
   setup() {
+    let { toClipboard } = useClipboard()
+    let link = ref()
+    let options = ref([])
+    let shareDescription = ref('')
+    let showShare = ref(false)
     let router = useRouter()
     let topTextOpacity = ref(0)
     function back() {
@@ -73,17 +75,36 @@ export default {
     }
     onMounted(() => {
       window.addEventListener('scroll', showNavText)
+      shareDescription.value = '流行指数榜'
+      options.value.push(
+        { name: '复制链接', icon: 'link', type: 'link' }
+      )
     })
     function showNavText() {
       let scrollTop = window.pageYOffset
       computeColor(scrollTop)
     }
     function computeColor(scrollTop) {
-      topTextOpacity.value = scrollTop / 140 - 0.1
+      topTextOpacity.value = scrollTop / 140
+    }
+    function share() {
+      showShare.value = true
+    }
+    function selectOption(option) {
+      if (option.type === 'link') {
+        toClipboard(window.location.toString())
+        Toast.success('复制成功')
+      }
     }
     return {
+      options,
+      topTextOpacity,
+      showShare,
+      shareDescription,
+      link,
+      share,
       back,
-      topTextOpacity
+      selectOption
     }
   }
 }
@@ -127,8 +148,8 @@ export default {
     height: 70px;
     width: 70px;
     float: right;
-    margin-top: 10px;
     margin-right: 10px;
+    margin-top: -10px;
   }
   #rank-title{
     color: #FFF;
@@ -136,11 +157,9 @@ export default {
   #update-periodicity{
     font-size: 10px;
     color: #FFF;
-    display: inline-block;
-    line-height: 16px;
   }
   #rank-detail-name{
-    font-size: 20px;
+    font-size: 26px;
     color: #FFF;
     display: block;
     line-height: 50px;
@@ -188,7 +207,14 @@ export default {
     margin-left: 5px;
   }
   #rank-list{
-    width: 88%;
+    width: 90%;
     margin: 0 auto;
+  }
+  #rank-title-box{
+    display: flex;
+    align-items: center;
+  }
+  #split-span{
+    color: #FFF;
   }
 </style>

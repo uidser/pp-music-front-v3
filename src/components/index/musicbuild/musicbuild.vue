@@ -14,7 +14,7 @@
         <van-image cover src="/img/109951168061052575.jpg"/>
       </van-swipe-item>
     </van-swipe>
-    <div style="width: 95%; margin: 0 auto; height: 175px">
+    <div style="width: 95%; margin: 0 auto; height: 90px">
       <div style="width: 100%; margin: 0 auto; margin-top: 10px;">
         <div class="icon-button-div" @click="jump('/singerList')">
           <van-icon name="manager" color="#8F8F8FFF" size="3rem" class="icon-button"/>
@@ -35,28 +35,6 @@
         <div class="icon-button-div">
           <van-icon name="shopping-cart" color="#8F8F8FFF" size="3rem" class="icon-button"/>
           <span>商城</span>
-        </div>
-      </div>
-      <div style="width: 100%; margin: 0 auto;">
-        <div class="icon-button-div">
-          <van-icon name="manager" color="#8F8F8FFF" size="3rem" class="icon-button"/>
-          <span>歌手</span>
-        </div>
-        <div class="icon-button-div">
-          <van-icon name="manager" color="#8F8F8FFF" size="3rem" class="icon-button"/>
-          <span>歌手</span>
-        </div>
-        <div class="icon-button-div">
-          <van-icon name="manager" color="#8F8F8FFF" size="3rem" class="icon-button"/>
-          <span>歌手</span>
-        </div>
-        <div class="icon-button-div">
-          <van-icon name="manager" color="#8F8F8FFF" size="3rem" class="icon-button"/>
-          <span>歌手</span>
-        </div>
-        <div class="icon-button-div">
-          <van-icon name="manager" color="#8F8F8FFF" size="3rem" class="icon-button"/>
-          <span>歌手</span>
         </div>
       </div>
     </div>
@@ -316,6 +294,7 @@ export default {
     display: block;
   }
   .icon-button-div{
+    width: 20%;
     text-align: center;
     float: left;
   }
