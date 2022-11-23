@@ -11,7 +11,10 @@ const playerStore = createStore({
       progressTage: 0,
       currentTime: 0,
       duration: 0,
-      currentSongSrc: ''
+      currentSongSrc: '',
+      showBottomNav: true,
+      playerBottom: '52px',
+      showMainPlayer: false
     }
   },
   mutations: {
@@ -32,6 +35,20 @@ const playerStore = createStore({
     },
     changeCurrentSongSrc(state, args) {
       state.currentSongSrc = args
+    },
+    reComputeShowBottomNav(state) {
+      if (window.location.toString().indexOf('/musicBuild') !== -1 || window.location.toString().indexOf('/songList') !== -1 || window.location.toString().indexOf('/my') !== -1 || window.location.toString().indexOf('/index') !== -1) {
+        state.showBottomNav = true
+      } else {
+        state.showBottomNav = false
+      }
+    },
+    reComputeMainPlayer(state) {
+      if (window.location.toString().indexOf('/play') !== -1) {
+        state.showMainPlayer = false
+      } else {
+        state.showMainPlayer = true
+      }
     }
   },
   getters: {
@@ -52,6 +69,26 @@ const playerStore = createStore({
     },
     currentSongSrc(state) {
       return state.currentSongSrc
+    },
+    showBottomNav(state) {
+      if (window.location.toString().indexOf('/musicBuild') !== -1 || window.location.toString().indexOf('/songList') !== -1 || window.location.toString().indexOf('/my') !== -1 || window.location.toString().indexOf('/index') !== -1) {
+        state.showBottomNav = true
+        return true
+      } else {
+        state.showBottomNav = false
+        return false
+      }
+    },
+    playerBottom(state) {
+      if(state.showBottomNav) {
+        state.playerBottom = '52px'
+        return '52px'
+      }
+      state.playerBottom = '5px'
+      return '5px'
+    },
+    mainPlayer(state) {
+      return state.showMainPlayer
     }
   }
 })

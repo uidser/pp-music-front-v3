@@ -110,10 +110,10 @@ export default {
         audio.value.currentTime = store.getters.currentTime
       }
     })
-    function back() {
+    async function back() {
       router.go(-1)
-      clearInterval(computeTime)
-      clearInterval(timer)
+      await clearInterval(computeTime)
+      await clearInterval(timer)
     }
     function loadFinish() {
       let min = audio.value.duration / 60
@@ -121,6 +121,11 @@ export default {
       totalTime.value = min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
     }
     function playerMusic() {
+      if (store.getters.currentTime) {
+        audio.value.currentTime = store.getters.currentTime
+      } else {
+        audio.value.currentTime = 0
+      }
       store.commit('changeIsPlay', true)
       isPlayer.value = true
       audio.value.play()
@@ -234,10 +239,10 @@ export default {
       showReplay.value = !showReplay.value
       loop.value = true
     }
-    function toComment() {
+    async function toComment() {
       router.push('/comment')
-      clearInterval(computeTime)
-      clearInterval(timer)
+      await clearInterval(computeTime)
+      await clearInterval(timer)
     }
     return {
       finished,

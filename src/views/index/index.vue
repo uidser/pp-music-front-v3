@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div id="all-div">
     <router-view></router-view>
-    <div style="width: 100%; height: 50px;display: flex; justify-items: center; position: fixed; bottom: 52px; z-index: 10000;">
-      <div class="song-audio-box" @click="toPlay">
+    <div id="audio-player">
+      <div class="song-audio-box" @click="toPlay" v-if="store.getters.mainPlayer">
         <audio class="song-audio" ref="audio"></audio>
         <div class="audio-left">
           <img src="/img/manleng-album.png" width="50"/>
@@ -20,7 +20,7 @@
         </div>
       </div>
     </div>
-    <div style="width: 100%; margin: 0 auto; position: absolute; bottom: 0px; box-shadow: 0px -8px 50px 0px rgba(0,0,0,0.1); position: fixed; background-color: white">
+    <div style="width: 100%; margin: 0 auto; position: absolute; bottom: 0px; box-shadow: 0px -8px 50px 0px rgba(0,0,0,0.1); position: fixed; background-color: white" v-show="store.state.showBottomNav">
       <div class="bottom-nav" @click="changeNavNum(0, '/index')">
         <van-icon name="music" size="2rem" :color="navNum === 0? '#000000': '#8F8F8FFF'" style="display: block"/>
         <span>首页</span>
@@ -33,7 +33,7 @@
   </div>
 </template>
 <script>
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch, nextTick} from "vue";
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 export default {
@@ -46,20 +46,47 @@ export default {
     let audio = ref()
     let progressTage = ref(0)
     let computeTime = ref()
+    let showBottomNav = ref(false)
+    let playerBottom = ref('52px')
     let songList = ref([
       { src: '/song/manleng.mp3' }
     ])
-    onMounted(() => {
-      if(store.getters.isPlay) {
-        if (store.getters.currentSongSrc) {
-          audio.value.src = store.getters.currentSongSrc
-          audio.value.currentTime = store.getters.currentTime
+    function compute() {
+      store.commit('reComputeShowBottomNav')
+      store.commit('reComputeMainPlayer')
+    }
+    watch(() => router.currentRoute.value, () => {
+      store.commit('reComputeShowBottomNav')
+      store.commit('reComputeMainPlayer')
+      nextTick(() => {
+        if(store.getters.mainPlayer) {
+          if(store.getters.isPlay) {
+            if (store.getters.currentSongSrc) {
+              audio.value.src = store.getters.currentSongSrc
+              audio.value.currentTime = store.getters.currentTime
+            }
+            playerMusic()
+          } else {
+            audio.value.src = store.getters.songList[0].src
+          }
+          store.commit('changeCurrentSongSrc', audio.value.src)
         }
-        playerMusic()
-      } else {
-        audio.value.src = store.getters.songList[0].src
+      })
+    })
+    onMounted(async () => {
+      await compute()
+      if(store.getters.mainPlayer) {
+        if(store.getters.isPlay) {
+          if (store.getters.currentSongSrc) {
+            audio.value.src = store.getters.currentSongSrc
+            audio.value.currentTime = store.getters.currentTime
+          }
+          playerMusic()
+        } else {
+          audio.value.src = store.getters.songList[0].src
+        }
+        store.commit('changeCurrentSongSrc', audio.value.src)
       }
-      store.commit('changeCurrentSongSrc', audio.value.src)
     })
     function changeNavNum(num, path) {
       navNum.value = num
@@ -70,7 +97,11 @@ export default {
       playerMusic()
     }
     function playerMusic() {
-
+      if (store.getters.currentTime) {
+        audio.value.currentTime = store.getters.currentTime
+      } else {
+        audio.value.currentTime = 0
+      }
       store.commit('changeIsPlay', true)
       isPlayer.value = true
       audio.value.play()
@@ -78,8 +109,6 @@ export default {
         if (audio.value.currentTime !== null) {
           progressTage.value = (audio.value.currentTime / audio.value.duration) * 100
           store.commit('changeCurrentTime', audio.value.currentTime)
-        } else {
-          progressTage.value = 0
         }
         store.commit('changeProgressTage', progressTage.value)
         if(progressTage.value >= 100) {
@@ -106,11 +135,14 @@ export default {
       progressTage,
       computeTime,
       store,
+      showBottomNav,
+      playerBottom,
       changeNavNum,
       playerMusic,
       stopMusic,
       toPlay,
-      realPlayerMusic
+      realPlayerMusic,
+      compute
     }
   }
 }
@@ -182,5 +214,18 @@ export default {
     bottom: 0;
     left: -2px;
     border-radius: 2px;
+  }
+  #audio-player{
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-items: center;
+    position: fixed;
+    bottom: v-bind('store.getters.playerBottom');
+    z-index: 10000;
+  }
+  #all-div{
+    height: 100%;
+    position: relative;
   }
 </style>
