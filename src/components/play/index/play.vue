@@ -128,9 +128,6 @@ export default {
       await clearInterval(timer)
     }
     function playerMusic() {
-      if (store.getters.currentSongSrc) {
-        pubSub.publish('changeCurrentSongSrcPubSub', store.getters.currentSongSrc)
-      }
       if (store.getters.isPlay) {
 
       } else {

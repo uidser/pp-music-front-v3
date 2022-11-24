@@ -96,13 +96,13 @@ export default {
         showSongList()
       })
       changeCurrentSongSrc = pubSub.subscribe('changeCurrentSongSrcPubSub', async (name, msg) => {
-        await stopMusic()
+        stopMusic()
+        store.commit('changeCurrentSongSrc', msg)
         audio.value.src = msg
         progressTage.value = 0
         await store.commit('changeProgressTage', 0)
         let songInfo = { songSrc: msg, duration: await duration() }
-        await localStorage.setItem('songInfo', JSON.stringify(songInfo))
-        await store.commit('changeCurrentSongSrc', msg)
+        localStorage.setItem('songInfo', JSON.stringify(songInfo))
         playerMusic()
         duration()
       })
