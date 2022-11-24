@@ -5,6 +5,7 @@ const route = createRouter({
     routes: [
         {
             path: '/',
+            redirect: '/index',
             component: () => import('@/views/index/index'),
             children: [
                 {
@@ -23,16 +24,15 @@ const route = createRouter({
                             path: 'my',
                             component: () => import('@/components/my/index/index')
                         },
-
+                    ]
+                },
+                {
+                    path: 'comment',
+                    component: () => import('@/components/comment/index/comment'),
+                    children: [
                         {
-                            path: 'comment',
-                            component: () => import('@/components/comment/index/comment'),
-                            children: [
-                                {
-                                    path: 'detail',
-                                    component: () => import('@/components/comment/detail/detail')
-                                }
-                            ]
+                            path: 'detail',
+                            component: () => import('@/components/comment/detail/detail')
                         }
                     ]
                 },

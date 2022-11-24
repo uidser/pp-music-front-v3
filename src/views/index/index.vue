@@ -2,7 +2,7 @@
   <div id="all-div">
     <router-view></router-view>
     <div id="audio-player">
-      <div class="song-audio-box" @click="toPlay" v-if="store.getters.mainPlayer">
+      <div class="song-audio-box" @click="toPlay" v-show="store.getters.mainPlayer">
         <audio class="song-audio" ref="audio"></audio>
         <div class="audio-left">
           <img src="/img/manleng-album.png" width="50"/>
@@ -11,8 +11,8 @@
           <span class="audio-song-singer-span">慢冷 - 梁静茹</span>
           <div class="audio-button-box">
             <van-icon name="play" size="1.5rem" color="#FFF" v-show="!isPlayer" @click="realPlayerMusic" class="audio-button-box-i"/>
-            <van-icon name="pause" size="1.5rem" color="#FFF" v-show="isPlayer" @click="stopMusic" class="audio-button-box-i"/>
-            <van-icon name="wap-nav" size="1.5rem" color="#FFF" id="audio-list-button"/>
+            <van-icon name="pause" size="1.5rem" color="#FFF" v-show="isPlayer" @click="realStopMusic" class="audio-button-box-i"/>
+            <van-icon name="wap-nav" size="1.5rem" color="#FFF" id="audio-list-button" @click="realShowSongList"/>
           </div>
           <div class="audio-progress">
             <van-progress :percentage="progressTage" v-show="progressTage" pivot-color="#7232dd" color="linear-gradient(to right, #e8d58d, #dbb833)" stroke-width="3" :show-pivot="false"/>
@@ -30,12 +30,14 @@
         <span>我的</span>
       </div>
     </div>
+    <van-action-sheet v-model:show="show" :actions="store.getters.songList" @select="onSelect" cancel-text="关闭" style="z-index: 10101010"/>
   </div>
 </template>
 <script>
-import {onMounted, ref, watch, nextTick} from "vue";
+import {onMounted, ref, watch, onBeforeUnmount} from "vue";
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import pubSub from 'pubsub-js'
 export default {
   name: "index",
   setup() {
@@ -48,6 +50,11 @@ export default {
     let computeTime = ref()
     let showBottomNav = ref(false)
     let playerBottom = ref('52px')
+    let changeCurrenTimeAndProgressTage = ref()
+    let playOrStop = ref()
+    let changeCurrentSongSrc = ref()
+    let pubShowSongList = ref()
+    let show = ref(false)
     let songList = ref([
       { src: '/song/manleng.mp3' }
     ])
@@ -58,36 +65,107 @@ export default {
     watch(() => router.currentRoute.value, () => {
       store.commit('reComputeShowBottomNav')
       store.commit('reComputeMainPlayer')
-      nextTick(() => {
-        if(store.getters.mainPlayer) {
-          if(store.getters.isPlay) {
-            if (store.getters.currentSongSrc) {
-              audio.value.src = store.getters.currentSongSrc
-              audio.value.currentTime = store.getters.currentTime
-            }
-            playerMusic()
-          } else {
-            audio.value.src = store.getters.songList[0].src
-          }
-          store.commit('changeCurrentSongSrc', audio.value.src)
-        }
-      })
+      // nextTick(() => {
+      //   if(store.getters.mainPlayer) {
+      //     if(store.getters.isPlay) {
+      //       if (store.getters.currentSongSrc) {
+      //         audio.value.src = store.getters.currentSongSrc
+      //         audio.value.currentTime = store.getters.currentTime
+      //       }
+      //       playerMusic()
+      //     } else {
+      //       audio.value.src = store.getters.songList[0].src
+      //     }
+      //     store.commit('changeCurrentSongSrc', audio.value.src)
+      //   }
+      // })
+    })
+    onBeforeUnmount(() => {
+      pubSub.unsubscribe(changeCurrenTimeAndProgressTage)
+      pubSub.unsubscribe(playOrStop)
+      pubSub.unsubscribe(changeCurrentSongSrc)
+      pubSub.unsubscribe(pubShowSongList)
     })
     onMounted(async () => {
-      await compute()
-      if(store.getters.mainPlayer) {
-        if(store.getters.isPlay) {
-          if (store.getters.currentSongSrc) {
-            audio.value.src = store.getters.currentSongSrc
-            audio.value.currentTime = store.getters.currentTime
-          }
+      if (localStorage.getItem('songInfo')) {
+        var parse = JSON.parse(localStorage.getItem('songInfo'))
+        store.commit('changeCurrentSongSrc', parse.songSrc)
+        audio.value.src = parse.songSrc
+      }
+      pubShowSongList = pubSub.subscribe('showSongList', (name, msg) => {
+        showSongList()
+      })
+      changeCurrentSongSrc = pubSub.subscribe('changeCurrentSongSrcPubSub', async (name, msg) => {
+        await stopMusic()
+        audio.value.src = msg
+        progressTage.value = 0
+        await store.commit('changeProgressTage', 0)
+        let songInfo = { songSrc: msg, duration: await duration() }
+        await localStorage.setItem('songInfo', JSON.stringify(songInfo))
+        await store.commit('changeCurrentSongSrc', msg)
+        playerMusic()
+        duration()
+      })
+      changeCurrenTimeAndProgressTage = pubSub.subscribe('changeCurrenTimeAndProgressTage', (name, msg) => {
+        var strings = msg.toString().split(':');
+        audio.value.currentTime = strings[0]
+        progressTage.value = strings[1]
+        store.commit('changeCurrentTime', strings[0])
+        store.commit('changeProgressTage', strings[1])
+      })
+      playOrStop = pubSub.subscribe('playOrStop', (name, msg) => {
+        console.log(msg)
+        if (msg) {
           playerMusic()
         } else {
-          audio.value.src = store.getters.songList[0].src
+          stopMusic()
         }
-        store.commit('changeCurrentSongSrc', audio.value.src)
+      })
+      await compute()
+      if (localStorage.getItem('songInfo')) {
+        var parse1 = JSON.parse(localStorage.getItem('songInfo'))
+        if (parse1.songSrc){
+          audio.value.src = parse1.songSrc
+          store.commit('changeCurrentSongSrc', parse1.songSrc)
+          duration()
+        }
+      } else {
+        audio.value.src = store.getters.songList[0].src
+        store.commit('changeCurrentSongSrc', store.getters.songList[0].src)
       }
     })
+    async function onSelect(item) {
+      store.commit('changeCurrentSongSrc', item.src)
+      let src = store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/') + 1, store.getters.currentSongSrc.length)
+      store.getters.songList.forEach((song) => {
+        song.color = ''
+        let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
+        if (subSrc === src) {
+          song.color = '#ee0a24'
+          audio.value.src = item.src
+          let songInfo = { songSrc: item.src, duration: duration() }
+          localStorage.setItem('songInfo', JSON.stringify(songInfo))
+          store.commit('changeCurrentTime', 0)
+        }
+      })
+      playerMusic()
+      show.value = false
+    }
+    function realShowSongList() {
+      event.cancelBubble = true
+      showSongList()
+    }
+    function showSongList() {
+      let src = store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/') + 1, store.getters.currentSongSrc.length)
+      store.getters.songList.forEach((song) => {
+        song.color = ''
+        let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
+        if (subSrc === src) {
+          song.color = '#ee0a24'
+        }
+      })
+      show.value = true
+    }
     function changeNavNum(num, path) {
       navNum.value = num
       router.push(path)
@@ -106,18 +184,17 @@ export default {
       isPlayer.value = true
       audio.value.play()
       computeTime = setInterval(() => {
-        if (audio.value.currentTime !== null) {
-          progressTage.value = (audio.value.currentTime / audio.value.duration) * 100
-          store.commit('changeCurrentTime', audio.value.currentTime)
-        }
+        progressTage.value = (audio.value.currentTime / audio.value.duration) * 100
+        store.commit('changeCurrentTime', audio.value.currentTime)
         store.commit('changeProgressTage', progressTage.value)
         if(progressTage.value >= 100) {
           stopMusic()
         }
       }, 100)
+      let songInfo = { songSrc: audio.value.src, duration: audio.value.duration }
+      localStorage.setItem('songInfo', JSON.stringify(songInfo))
     }
     function stopMusic() {
-      event.cancelBubble = true
       store.commit('changeIsPlay', false)
       isPlayer.value = false
       audio.value.pause()
@@ -125,7 +202,17 @@ export default {
     }
     function toPlay() {
       router.push('/play')
-      clearInterval(computeTime)
+    }
+    function duration() {
+      let audio1 = new Audio(store.getters.currentSongSrc)
+      audio1.addEventListener('loadedmetadata', () => {
+        store.commit('changeDuration', audio1.duration)
+        return audio1.duration
+      })
+    }
+    function realStopMusic() {
+      event.cancelBubble = true
+      stopMusic()
     }
     return {
       isPlayer,
@@ -135,13 +222,23 @@ export default {
       progressTage,
       computeTime,
       store,
+      show,
       showBottomNav,
       playerBottom,
+      changeCurrenTimeAndProgressTage,
+      playOrStop,
+      changeCurrentSongSrc,
+      pubShowSongList,
+      realShowSongList,
+      onSelect,
+      showSongList,
       changeNavNum,
       playerMusic,
       stopMusic,
       toPlay,
       realPlayerMusic,
+      duration,
+      realStopMusic,
       compute
     }
   }

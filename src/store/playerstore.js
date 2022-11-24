@@ -5,8 +5,8 @@ const playerStore = createStore({
     return {
       isPlay: false,
       songList: [
-        {src: '/song/manleng.mp3', id: 1, 'name': '慢冷 - 梁静茹'},
-        {src: '/song/LilNasX-STARWALKIN(LeagueofLegendsWorldsAnthem).mp3', id: 2, 'name': 'STARWALKIN - LilNasX'}
+        {src: 'http://localhost:8080/song/manleng.mp3', id: 1, 'name': '慢冷 - 梁静茹'},
+        {src: 'http://localhost:8080/song/LilNasX-STARWALKIN(LeagueofLegendsWorldsAnthem).mp3', id: 2, 'name': 'STARWALKIN - LilNasX'}
       ],
       progressTage: 0,
       currentTime: 0,
@@ -14,7 +14,8 @@ const playerStore = createStore({
       currentSongSrc: '',
       showBottomNav: true,
       playerBottom: '52px',
-      showMainPlayer: false
+      showMainPlayer: false,
+      totalTime: '0:00'
     }
   },
   mutations: {
@@ -31,7 +32,7 @@ const playerStore = createStore({
       state.currentTime = args
     },
     changeDuration(state, args) {
-      state.currentTime = args
+      state.duration = args
     },
     changeCurrentSongSrc(state, args) {
       state.currentSongSrc = args
@@ -68,6 +69,10 @@ const playerStore = createStore({
       return state.duration
     },
     currentSongSrc(state) {
+      // if (localStorage.getItem('songInfo')) {
+      //   var parse = JSON.parse(localStorage.getItem('songInfo'))
+      //   return parse.songSrc
+      // }
       return state.currentSongSrc
     },
     showBottomNav(state) {
@@ -89,6 +94,22 @@ const playerStore = createStore({
     },
     mainPlayer(state) {
       return state.showMainPlayer
+    },
+    totalTime(state) {
+      if(state.duration !== '0:00') {
+        let min = state.duration / 60
+        let sec = state.duration % 60
+        return min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
+      } else {
+        if (localStorage.getItem('songInfo')) {
+          var parse = JSON.parse(localStorage.getItem('songInfo'))
+          let duration = parse.duration
+          let min = duration / 60
+          let sec = duration % 60
+          return min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
+        }
+      }
+      return '0:00'
     }
   }
 })

@@ -36,17 +36,17 @@
         <van-icon name="ellipsis" color="#8f8f8f" size="2rem" style="float: right; margin-right: 45px"/>
       </div>
       <div class="song-audio-box">
-        <audio class="song-audio" ref="audio" @canplay="loadFinish" :loop="loop"></audio>
+<!--        <audio class="song-audio" ref="audio" @canplay="loadFinish" :loop="loop"></audio>-->
         <div class="audio-progress">
           <div style="position: relative">
-            <van-progress :percentage="progressTage" ref="progressTageRef" @click="changeProgress" @change="changeProgress" pivot-color="#dbb833" color="linear-gradient(to right, #e8d58d, #dbb833)" stroke-width="5" pivot-text=" "/>
+            <van-progress :percentage="progressTage" @click="changeProgress" @change="changeProgress" pivot-color="#dbb833" color="linear-gradient(to right, #e8d58d, #dbb833)" stroke-width="5" pivot-text=" "/>
             <input type="range" min="0" max="360" ref="progressTageRef" @change="changeProgress" style="width: 101%;position: absolute; top: 0px;height: 5px;left: -3px; opacity: 0">
           </div>
           <div class="current-time">
             <span>{{ currentTime }}</span>
           </div>
           <div class="total-time">
-            <span>{{ totalTime }}</span>
+            <span>{{ store.getters.totalTime }}</span>
           </div>
         </div>
         <div class="audio-right">
@@ -62,7 +62,6 @@
         </div>
       </div>
     </div>
-    <van-action-sheet v-model:show="show" :actions="store.getters.songList" @select="onSelect" cancel-text="关闭"/>
   </div>
 </template>
 
@@ -71,6 +70,7 @@ import {onMounted, ref} from "vue"
 import {useRouter} from "vue-router"
 import {Toast} from "vant"
 import {useStore} from "vuex"
+import pubSub from "pubsub-js";
 export default {
   name: "play",
   setup() {
@@ -84,7 +84,7 @@ export default {
     let isPlayer = ref(false)
     let audio = ref()
     let computeTime = ref()
-    let progressTage = ref(0)
+    let progressTage = ref('0')
     let router = useRouter()
     let timer = ref()
     let progressTageRef = ref()
@@ -97,53 +97,57 @@ export default {
     // ])
     onMounted(() => {
       if (store.getters.isPlay) {
-        audio.value.src = store.getters.currentSongSrc
-        playerMusic()
+        isPlayer.value = true
+        computeTime = setInterval(async () => {
+          progressTage.value = store.getters.progressTage
+          // if(progressTage.value >= 100) {
+          //   nextSong()
+          // }
+        }, 100)
+        timer = setInterval(() => {
+          let min = store.getters.currentTime / 60
+          let sec = store.getters.currentTime % 60
+          if (sec.toString().split('.')[0].length < 2) {
+            currentTime.value = '0' + min.toString().split('.')[0] + ':' + '0' + sec.toString().split('.')[0]
+          } else {
+            currentTime.value = '0' + min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
+          }
+        }, 1000)
       } else {
-        audio.value.src = store.getters.songList[0].src
+        isPlayer.value = false
+        totalTime.value = '0:00'
       }
-      totalTime.value = audio.value.duration
       if (store.getters.progressTage) {
         progressTage.value = store.getters.progressTage
       }
-      if (store.getters.currentTime) {
-        audio.value.currentTime = store.getters.currentTime
-      }
+      duration()
     })
     async function back() {
       router.go(-1)
       await clearInterval(computeTime)
       await clearInterval(timer)
     }
-    function loadFinish() {
-      let min = audio.value.duration / 60
-      let sec = audio.value.duration % 60
-      totalTime.value = min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
-    }
     function playerMusic() {
-      if (store.getters.currentTime) {
-        audio.value.currentTime = store.getters.currentTime
-      } else {
-        audio.value.currentTime = 0
+      if (store.getters.currentSongSrc) {
+        pubSub.publish('changeCurrentSongSrcPubSub', store.getters.currentSongSrc)
       }
-      store.commit('changeIsPlay', true)
+      if (store.getters.isPlay) {
+
+      } else {
+        store.commit('changeIsPlay', true)
+        pubSub.publish('playOrStop', true)
+      }
       isPlayer.value = true
-      audio.value.play()
-      computeTime = setInterval(() => {
-        if (audio.value.currentTime !== null) {
-          progressTage.value = (audio.value.currentTime / audio.value.duration) * 100
-          store.commit('changeCurrentTime', audio.value.currentTime)
-        } else {
-          progressTage.value = 0
-        }
-        store.commit('changeProgressTage', progressTage.value)
-        if(progressTage.value >= 100) {
-          nextSong()
-        }
+      computeTime = setInterval(async () => {
+        progressTage.value = store.getters.progressTage
+        // if(progressTage.value.toString()) {
+        //   console.log(progressTage.value.toString())
+        //   nextSong()
+        // }
       }, 100)
       timer = setInterval(() => {
-        let min = audio.value.currentTime / 60
-        let sec = audio.value.currentTime % 60
+        let min = store.getters.currentTime / 60
+        let sec = store.getters.currentTime % 60
         if (sec.toString().split('.')[0].length < 2) {
           currentTime.value = '0' + min.toString().split('.')[0] + ':' + '0' + sec.toString().split('.')[0]
         } else {
@@ -151,38 +155,44 @@ export default {
         }
       }, 1000)
     }
+    function showSongList() {
+      pubSub.publish('showSongList', true)
+    }
     function stopMusic() {
       store.commit('changeIsPlay', false)
       isPlayer.value = false
-      audio.value.pause()
+      pubSub.publish('playOrStop', false)
       clearInterval(computeTime)
       clearInterval(timer)
     }
     function changeProgress() {
       let currentProgress = progressTageRef.value.value
+      console.log(currentProgress)
       let redirectTime = currentProgress / 360
-      audio.value.currentTime = audio.value.duration * redirectTime
-      store.commit('changeCurrentTime', audio.value.currentTime)
-      progressTage.value = Number((redirectTime * 100).toFixed(2))
+      let duration = store.getters.duration
+      let currentTime = duration * redirectTime
+      store.commit('changeCurrentTime', currentTime)
+      console.log('提交当前时间' +  currentTime)
+      progressTage.value = redirectTime * 100
       store.commit('changeProgressTage', progressTage.value)
+      pubSub.publish('changeCurrenTimeAndProgressTage', currentTime + ':' + progressTage.value)
       playerMusic()
     }
-    function nextSong() {
-      let src = audio.value.src.substring(audio.value.src.lastIndexOf('/') + 1, audio.value.src.length)
-      stopMusic()
+    async function nextSong() {
+      let src = store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/') + 1, store.getters.currentSongSrc.length)
       store.getters.songList.forEach((song, index) => {
         let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
         if (subSrc === src) {
           if(index < store.getters.songList.length - 1) {
-            audio.value.src = store.getters.songList[index + 1].src
-            store.commit('changeCurrentSongSrc', audio.value.src)
+            store.commit('changeCurrentSongSrc', store.getters.songList[index + 1].src)
+            store.commit('changeCurrentTime', 0)
+            stopMusic()
+            pubSub.publish('changeCurrentSongSrcPubSub', store.getters.songList[index + 1].src)
             playerMusic()
           } else {
             Toast('已经是最后一首了')
             if ((progressTage.value).toFixed() >= 100) {
               stopMusic()
-            } else {
-              playerMusic()
             }
           }
         }
@@ -190,40 +200,42 @@ export default {
 
     }
     function previous() {
-      let src = audio.value.src.substring(audio.value.src.lastIndexOf('/') + 1, audio.value.src.length)
-      stopMusic()
+      console.log('当前播放的是' + store.getters.currentSongSrc)
+      let src = store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/') + 1, store.getters.currentSongSrc.length)
       store.getters.songList.forEach((song, index) => {
         let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
         if (subSrc === src) {
+          console.log(subSrc + ':' + src)
           if(index - 1 > -1) {
-            audio.value.src = store.getters.songList[index -1].src
-            store.commit('changeCurrentSongSrc', audio.value.src)
+            store.commit('changeCurrentTime', 0)
+            stopMusic()
+            pubSub.publish('changeCurrentSongSrcPubSub', store.getters.songList[index - 1].src)
+            console.log('要播放的地址' + store.getters.songList[index - 1].src)
+            playerMusic()
           } else {
             Toast('已经是第一首了')
           }
         }
       })
-      playerMusic()
     }
-    function showSongList() {
-      let src = audio.value.src.substring(audio.value.src.lastIndexOf('/') + 1, audio.value.src.length)
+    function duration() {
+      if(store.getters.duration) {
+        let duration = store.getters.duration
+        let min = duration / 60
+        let sec = duration % 60
+        totalTime.value = min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
+      }
+    }
+    async function onSelect(item) {
+      store.commit('changeCurrentSongSrc', item.src)
+      let src = store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/') + 1, store.getters.currentSongSrc.length)
       store.getters.songList.forEach((song) => {
         song.color = ''
         let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
         if (subSrc === src) {
           song.color = '#ee0a24'
-        }
-      })
-      show.value = true
-    }
-    function onSelect(item) {
-      audio.value.src = item.src
-      let src = audio.value.src.substring(audio.value.src.lastIndexOf('/') + 1, audio.value.src.length)
-      store.getters.songList.forEach((song) => {
-        song.color = ''
-        let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
-        if (subSrc === src) {
-          song.color = '#ee0a24'
+          pubSub.publish('changeCurrentSongSrc', item.src)
+          store.commit('changeCurrentTime', 0)
         }
       })
       playerMusic()
@@ -264,7 +276,6 @@ export default {
       playerMusic,
       stopMusic,
       back,
-      loadFinish,
       changeProgress,
       nextSong,
       previous,
@@ -272,7 +283,8 @@ export default {
       onSelect,
       replay,
       order,
-      toComment
+      toComment,
+      duration
     }
   }
 }
