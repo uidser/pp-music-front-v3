@@ -5,8 +5,8 @@ const playerStore = createStore({
     return {
       isPlay: false,
       songList: [
-        {src: 'http://localhost:8080/song/manleng.mp3', id: 1, 'name': '慢冷 - 梁静茹'},
-        {src: 'http://localhost:8080/song/LilNasX-STARWALKIN(LeagueofLegendsWorldsAnthem).mp3', id: 2, 'name': 'STARWALKIN - LilNasX'}
+        {src: '/song/manleng.mp3', id: 1, 'name': '慢冷 - 梁静茹'},
+        {src: '/song/LilNasX-STARWALKIN(LeagueofLegendsWorldsAnthem).mp3', id: 2, 'name': 'STARWALKIN - LilNasX'}
       ],
       progressTage: 0,
       currentTime: 0,
