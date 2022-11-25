@@ -152,101 +152,122 @@
         </div>
         <span class="singer-item-name-span">梁静茹</span>
         <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.5rem" class="singer-item-follow-icon"/>
+          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
           <span class="singer-item-follow-span">关注</span>
         </div>
       </div>
-      <div class="singer-item">
+      <div class="singer-item" @click="toSinger">
         <div class="singer-item-profile-picture-box">
           <img src="/img/manleng-album.png" width="60">
         </div>
         <span class="singer-item-name-span">梁静茹</span>
         <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.5rem" class="singer-item-follow-icon"/>
+          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
           <span class="singer-item-follow-span">关注</span>
         </div>
       </div>
-      <div class="singer-item">
+      <div class="singer-item" @click="toSinger">
         <div class="singer-item-profile-picture-box">
           <img src="/img/manleng-album.png" width="60">
         </div>
         <span class="singer-item-name-span">梁静茹</span>
         <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.5rem" class="singer-item-follow-icon"/>
+          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
           <span class="singer-item-follow-span">关注</span>
         </div>
       </div>
-      <div class="singer-item">
+      <div class="singer-item" @click="toSinger">
         <div class="singer-item-profile-picture-box">
           <img src="/img/manleng-album.png" width="60">
         </div>
         <span class="singer-item-name-span">梁静茹</span>
         <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.5rem" class="singer-item-follow-icon"/>
+          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
           <span class="singer-item-follow-span">关注</span>
         </div>
       </div>
-      <div class="singer-item">
+      <div class="singer-item" @click="toSinger">
         <div class="singer-item-profile-picture-box">
           <img src="/img/manleng-album.png" width="60">
         </div>
         <span class="singer-item-name-span">梁静茹</span>
         <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.5rem" class="singer-item-follow-icon"/>
+          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
           <span class="singer-item-follow-span">关注</span>
         </div>
       </div>
-      <div class="singer-item">
+      <div class="singer-item" @click="toSinger">
         <div class="singer-item-profile-picture-box">
           <img src="/img/manleng-album.png" width="60">
         </div>
         <span class="singer-item-name-span">梁静茹</span>
         <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.5rem" class="singer-item-follow-icon"/>
+          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
           <span class="singer-item-follow-span">关注</span>
         </div>
       </div>
-      <div class="singer-item">
+      <div class="singer-item" @click="toSinger">
         <div class="singer-item-profile-picture-box">
           <img src="/img/manleng-album.png" width="60">
         </div>
         <span class="singer-item-name-span">梁静茹</span>
         <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.5rem" class="singer-item-follow-icon"/>
+          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
           <span class="singer-item-follow-span">关注</span>
         </div>
       </div>
-      <div class="singer-item">
+      <div class="singer-item" @click="toSinger">
         <div class="singer-item-profile-picture-box">
           <img src="/img/manleng-album.png" width="60">
         </div>
         <span class="singer-item-name-span">梁静茹</span>
         <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.5rem" class="singer-item-follow-icon"/>
+          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
           <span class="singer-item-follow-span">关注</span>
         </div>
       </div>
-      <div class="singer-item">
+      <div class="singer-item" @click="toSinger">
         <div class="singer-item-profile-picture-box">
           <img src="/img/manleng-album.png" width="60">
         </div>
         <span class="singer-item-name-span">梁静茹</span>
         <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.5rem" class="singer-item-follow-icon"/>
+          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
           <span class="singer-item-follow-span">关注</span>
         </div>
       </div>
-      <div class="singer-item">
+      <div class="singer-item" @click="toSinger">
         <div class="singer-item-profile-picture-box">
           <img src="/img/manleng-album.png" width="60">
         </div>
         <span class="singer-item-name-span">梁静茹</span>
         <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.5rem" class="singer-item-follow-icon"/>
+          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
+          <span class="singer-item-follow-span">关注</span>
+        </div>
+      </div>
+      <div class="singer-item" @click="toSinger">
+        <div class="singer-item-profile-picture-box">
+          <img src="/img/manleng-album.png" width="60">
+        </div>
+        <span class="singer-item-name-span">梁静茹</span>
+        <div class="singer-item-follow-button">
+          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
+          <span class="singer-item-follow-span">关注</span>
+        </div>
+      </div>
+      <div class="singer-item" @click="toSinger">
+        <div class="singer-item-profile-picture-box">
+          <img src="/img/manleng-album.png" width="60">
+        </div>
+        <span class="singer-item-name-span">梁静茹</span>
+        <div class="singer-item-follow-button">
+          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
           <span class="singer-item-follow-span">关注</span>
         </div>
       </div>
     </div>
+    <div style="height: 50px;"></div>
   </div>
 </template>
 
@@ -420,19 +441,22 @@ export default {
     height: 20px;
     width: 46px;
     float: right;
-    border-radius: 10px;
-    border: 1px solid #8f8f8f;
+    border: 1.5px solid #8f8f8f;
+    border-radius: 12px;
     text-align: center;
     margin-top: 20px;
   }
   .singer-item-follow-span{
     font-size: 12px;
     color: #8f8f8f;
+    float: left;
+    margin-left: 1px;
     line-height: 20px;
   }
   .singer-item-follow-icon{
-    display: inline-block;
-    margin: 0 auto;
+    float: left;
     line-height: 20px;
+    margin-left: 5px;
+    font-weight: bolder;
   }
 </style>

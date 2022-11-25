@@ -1,9 +1,9 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { Button, Search, Swipe, SwipeItem, Icon, Progress, Toast, List, Cell, ActionSheet, ShareSheet  } from 'vant'
+import { Button, Search, Swipe, SwipeItem, Icon, Progress, Toast, List, Cell, ActionSheet, ShareSheet, PullRefresh } from 'vant'
 import { Image as VanImage } from 'vant'
 import route from "@/router/route"
-import playerStore from "@/store/playerstore";
+import playerStore from "@/store/playerstore"
 const app = createApp(App)
 app.use(Button)
 app.use(Search)
@@ -19,4 +19,5 @@ app.use(Cell)
 app.use(ActionSheet)
 app.use(ShareSheet)
 app.use(playerStore)
+app.use(PullRefresh)
 app.mount('#app')

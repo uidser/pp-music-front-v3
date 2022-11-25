@@ -28,8 +28,11 @@ const route = createRouter({
                 },
                 {
                     path: 'comment',
-                    component: () => import('@/components/comment/index/comment'),
                     children: [
+                        {
+                            path: '',
+                            component: () => import('@/components/comment/index/comment')
+                        },
                         {
                             path: 'detail',
                             component: () => import('@/components/comment/detail/detail')

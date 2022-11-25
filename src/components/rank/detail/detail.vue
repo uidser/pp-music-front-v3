@@ -36,8 +36,11 @@
         </div>
       </div>
       <div id="rank-list">
-        <song v-for="song in 300" :key="song" :rank-number="song"></song>
+        <van-list v-model:loading="loading" :finished="finished" error-text="请求失败，点击重新加载" @load="onLoad">
+          <song v-for="song in songList" :key="song" :rank-number="song"></song>
+        </van-list>
       </div>
+      <div style="height: 50px;"></div>
     </div>
     <van-share-sheet
       v-model:show="showShare"
@@ -45,6 +48,7 @@
       title="立即分享给好友"
       :description="shareDescription"
       @select="selectOption"
+      style="z-index: 99999"
     />
   </div>
 </template>
@@ -70,8 +74,20 @@ export default {
     let showShare = ref(false)
     let router = useRouter()
     let topTextOpacity = ref(0)
+    let loading = ref(false)
+    let songList = ref(100)
+    let finished = ref(false)
     function back() {
       router.go(-1)
+    }
+    const onLoad = () => {
+      setTimeout(() => {
+        songList.value += 100
+        loading.value = false
+        if (songList.value >= 300) {
+          finished.value = true
+        }
+      }, 1000)
     }
     onMounted(() => {
       window.addEventListener('scroll', showNavText)
@@ -102,6 +118,10 @@ export default {
       showShare,
       shareDescription,
       link,
+      loading,
+      songList,
+      finished,
+      onLoad,
       share,
       back,
       selectOption
