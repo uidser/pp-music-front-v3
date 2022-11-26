@@ -4,16 +4,16 @@ const route = createRouter({
     history: createWebHistory(),
     routes: [
         {
-            path: '/',
-            redirect: '/index',
+            path: '',
             component: () => import('@/views/index/index'),
             children: [
                 {
                     path: '',
+                    redirect: 'index',
                     component: () => import('@/components/index/index/index'),
                     children: [
                         {
-                            path: '/index',
+                            path: 'index',
                             component: () => import('@/components/index/recommend/recommend')
                         },
                         {
