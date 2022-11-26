@@ -746,7 +746,7 @@ export default {
     font-size: 14px;
     color: #FFF;
     line-height: 25px;
-    margin-left: 14px;
+    margin-left: 10px;
   }
   #singer-name-span{
     font-size: 24px;
@@ -757,7 +757,7 @@ export default {
   #follow-button{
     background-color: black;
     height: 25px;
-    width: 70px;
+    width: 60px;
     border-radius: 15px;
     float: right;
     margin-top: 2.5px;

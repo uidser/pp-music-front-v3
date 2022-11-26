@@ -12,12 +12,12 @@
     </div>
     <div class="song-detail-box">
       <div class="song-name">
-        <span class="song-name-span">{{ store.getters.currentSingerName.split('-')[1] }}</span>
+        <span class="song-name-span">{{ store.getters.currentSingerName.split('-')[0] }}</span>
         <van-icon name="like-o" color="#8f8f8f" size="2rem" style="float: right;" badge="99+" :badge-props="{color: '#8f8f8f'}" />
       </div>
       <div class="song-owner-name-and-button">
         <div class="play-owner-box">
-          <span class="play-owner-span">{{ store.getters.currentSingerName.split('-')[0] }}</span>
+          <span class="play-owner-span">{{ store.getters.currentSingerName.split('-')[1] }}</span>
         </div>
         <div class="follow-button">
           <span class="follow-span">关注</span>
@@ -108,20 +108,20 @@ export default {
       })
       if (store.getters.isPlay) {
         isPlayer.value = true
-        computeTime = setInterval(async () => {
+        computeTime = setInterval(() => {
           progressTage.value = store.getters.progressTage
-          if(progressTage.value >= 100) {
-            nextSong()
+          if(store.getters.progressTage >= 100) {
+            if (store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/'), store.getters.currentSongSrc.length -1) === store.getters.songList[store.getters.songList.length - 1].src.substring(store.getters.songList[store.getters.songList.length - 1].src.lastIndexOf('/'), store.getters.songList[store.getters.songList.length - 1].src.length - 1)) {
+              computeTimer()
+              stopMusic()
+              Toast('已经是最后一首了')
+            } else {
+              nextSong()
+            }
           }
         }, 100)
         timer = setInterval(() => {
-          let min = store.getters.currentTime / 60
-          let sec = store.getters.currentTime % 60
-          if (sec.toString().split('.')[0].length < 2) {
-            currentTime.value = '0' + min.toString().split('.')[0] + ':' + '0' + sec.toString().split('.')[0]
-          } else {
-            currentTime.value = '0' + min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
-          }
+          computeTimer()
         }, 1000)
       } else {
         isPlayer.value = false
@@ -137,6 +137,15 @@ export default {
       await clearInterval(computeTime)
       await clearInterval(timer)
     }
+    function computeTimer() {
+      let min = store.getters.currentTime / 60
+      let sec = store.getters.currentTime % 60
+      if (sec.toString().split('.')[0].length < 2) {
+        currentTime.value = '0' + min.toString().split('.')[0] + ':' + '0' + sec.toString().split('.')[0]
+      } else {
+        currentTime.value = '0' + min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
+      }
+    }
     function playerMusic() {
       if (store.getters.isPlay) {
 
@@ -145,20 +154,22 @@ export default {
         pubSub.publish('playOrStop', true)
       }
       isPlayer.value = true
-      computeTime = setInterval(async () => {
+      window.clearInterval(computeTime)
+      computeTime = setInterval( () => {
         progressTage.value = store.getters.progressTage
-        if(progressTage.value >= 100) {
-          nextSong()
+        if(store.getters.progressTage >= 100) {
+          if (store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/'), store.getters.currentSongSrc.length -1) === store.getters.songList[store.getters.songList.length - 1].src.substring(store.getters.songList[store.getters.songList.length - 1].src.lastIndexOf('/'), store.getters.songList[store.getters.songList.length - 1].src.length - 1)) {
+            computeTimer()
+            stopMusic()
+            Toast('已经是最后一首了')
+          } else {
+            nextSong()
+          }
         }
       }, 100)
+      window.clearInterval(timer)
       timer = setInterval(() => {
-        let min = store.getters.currentTime / 60
-        let sec = store.getters.currentTime % 60
-        if (sec.toString().split('.')[0].length < 2) {
-          currentTime.value = '0' + min.toString().split('.')[0] + ':' + '0' + sec.toString().split('.')[0]
-        } else {
-          currentTime.value = '0' + min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
-        }
+        computeTimer();
       }, 1000)
     }
     function showSongList() {
@@ -182,7 +193,7 @@ export default {
       pubSub.publish('changeCurrenTimeAndProgressTage', currentTime + ':' + progressTage.value)
       playerMusic()
     }
-    async function nextSong() {
+    function nextSong() {
       let src = store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/') + 1, store.getters.currentSongSrc.length)
       store.getters.songList.forEach((song, index) => {
         let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
@@ -196,8 +207,10 @@ export default {
             pubSub.publish('changeCurrentSongSrcPubSub', store.getters.songList[index + 1].src)
             playerMusic()
           } else {
+            clearInterval(computeTime)
+            clearInterval(timer)
             Toast('已经是最后一首了')
-            if (Number(progressTage.value).toFixed() >= 100) {
+            if (store.getters.progressTage >= 100) {
               stopMusic()
             }
           }
@@ -359,7 +372,8 @@ export default {
     display: inline-block;
   }
   .song-owner-name-and-button{
-
+    position: absolute;
+    bottom: 0;
   }
   .play-owner-span{
     font-size: 14px;
@@ -369,6 +383,9 @@ export default {
   }
   .song-name{
     margin-bottom: 15px;
+    position: absolute;
+    top: 0;
+    width: 100%;
   }
   .control{
     margin-top: 50px;
@@ -408,6 +425,8 @@ export default {
   }
   .song-detail-box{
     width: 76%;
+    height: 66px;
     margin: 0 auto;
+    position: relative;
   }
 </style>
