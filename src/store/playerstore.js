@@ -42,7 +42,7 @@ const playerStore = createStore({
       state.currentSongSrc = args
     },
     reComputeShowBottomNav(state) {
-      if (window.location.toString().indexOf('/musicBuild') !== -1 || window.location.toString().indexOf('/songList') !== -1 || window.location.toString().indexOf('/my') !== -1 || window.location.toString().indexOf('/index') !== -1) {
+      if (window.location.toString().indexOf('/musicBuild') !== -1 || window.location.toString().indexOf('/my') !== -1 || window.location.toString().indexOf('/index') !== -1) {
         state.showBottomNav = true
       } else {
         state.showBottomNav = false
@@ -87,7 +87,7 @@ const playerStore = createStore({
       return state.currentSongSrc
     },
     showBottomNav(state) {
-      if (window.location.toString().indexOf('/musicBuild') !== -1 || window.location.toString().indexOf('/songList') !== -1 || window.location.toString().indexOf('/my') !== -1 || window.location.toString().indexOf('/index') !== -1) {
+      if (window.location.toString().indexOf('/musicBuild') !== -1 || window.location.toString().indexOf('/my') !== -1 || window.location.toString().indexOf('/index') !== -1) {
         state.showBottomNav = true
         return true
       } else {

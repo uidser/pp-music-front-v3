@@ -63,6 +63,19 @@ const route = createRouter({
                             component: () => import('@/components/rank/detail/detail')
                         }
                     ]
+                },
+                {
+                    path: 'categorySongList',
+                    children: [
+                        {
+                            path: '',
+                            component: () => import('@/components/categorysonglist/categorysonglist')
+                        }
+                    ]
+                },
+                {
+                    path: 'songListDetail',
+                    component: () => import('@/components/songlistdetail/songlistdetail')
                 }
             ]
         }

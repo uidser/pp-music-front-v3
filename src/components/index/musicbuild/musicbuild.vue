@@ -24,7 +24,7 @@
           <van-icon name="fire" color="#8F8F8FFF" size="3rem" class="icon-button"/>
           <span>排行</span>
         </div>
-        <div class="icon-button-div">
+        <div class="icon-button-div" @click="jump('/categorySongList')">
           <van-icon name="label" color="#8F8F8FFF" size="3rem" class="icon-button"/>
           <span>分类歌单</span>
         </div>

@@ -2,7 +2,7 @@
   <div class="song-item">
     <div class="rank-number-box">
       <span :class="rankNumber > 3? 'rank-number': 'rank-number-red'">{{ rankNumber }}</span>
-      <div class="rank-tip"></div>
+      <div class="rank-tip" v-show="showStep"></div>
     </div>
     <div class="song-content-text">
       <span class="song-item-name">慢冷</span>
@@ -21,6 +21,10 @@ export default {
     rankNumber: {
       type: Number,
       default: 1
+    },
+    showStep: {
+      type: Boolean,
+      default: true
     }
   },
   name: "song"
