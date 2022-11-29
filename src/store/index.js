@@ -1,6 +1,6 @@
 import {createStore} from "vuex"
 import analyze from 'rgbaster'
-const playerStore = createStore({
+const index = createStore({
   state() {
     return {
       isPlay: false,
@@ -19,7 +19,8 @@ const playerStore = createStore({
       bottomNavDistance: '0px',
       currentSongPictureSrc: '',
       currentMainColor: '',
-      currentSingerName: ''
+      currentSingerName: '',
+      searchHistory: []
     }
   },
   mutations: {
@@ -60,9 +61,41 @@ const playerStore = createStore({
     },
     changeCurrentSingerName(state, args) {
       state.currentSingerName = args
+    },
+    CHANGE_SEARCH_HISTORY(state, args) {
+      let totalKeyword = new Object()
+      let tempHistory = localStorage.getItem('searchHistoryKeyword') === null? null: JSON.parse(localStorage.getItem('searchHistoryKeyword')).keyword.length? JSON.parse(localStorage.getItem('searchHistoryKeyword')): null
+      if(tempHistory) {
+        if (tempHistory.keyword.length) {
+          if (tempHistory.keyword.includes(args)) {
+            tempHistory.keyword[tempHistory.keyword.indexOf(args)] = null
+            totalKeyword.keyword = []
+            totalKeyword.keyword.push(args)
+            tempHistory.keyword.forEach((keyword) => {
+              if (keyword) {
+                totalKeyword.keyword.push(keyword)
+              }
+            })
+          } else {
+            totalKeyword.keyword = [
+              args,
+              ...tempHistory.keyword
+            ]
+          }
+        }
+      } else {
+        totalKeyword.keyword = [
+          args
+        ]
+      }
+      state.searchHistory = totalKeyword.keyword
+      localStorage.setItem('searchHistoryKeyword', JSON.stringify(totalKeyword))
+    },
+    RESET_SEARCH_HISTORY(state) {
+      state.searchHistory = []
+      localStorage.removeItem('searchHistoryKeyword')
     }
-  }
-  ,
+  },
   getters: {
     progressTage(state) {
       return state.progressTage
@@ -80,10 +113,6 @@ const playerStore = createStore({
       return state.duration
     },
     currentSongSrc(state) {
-      // if (localStorage.getItem('songInfo')) {
-      //   var parse = JSON.parse(localStorage.getItem('songInfo'))
-      //   return parse.songSrc
-      // }
       return state.currentSongSrc
     },
     showBottomNav(state) {
@@ -152,8 +181,15 @@ const playerStore = createStore({
     },
     currentSingerName(state) {
       return state.currentSingerName
+    },
+    searchHistory(state) {
+      if (!localStorage.getItem('searchHistoryKeyword')) {
+        return []
+      }
+      state.searchHistory = JSON.parse(localStorage.getItem('searchHistoryKeyword')).keyword
+      return JSON.parse(localStorage.getItem('searchHistoryKeyword')).keyword
     }
   }
 })
 
-export default playerStore
+export default index

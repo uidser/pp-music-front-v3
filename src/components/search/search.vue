@@ -2,14 +2,18 @@
   <div>
     <div class="play-title-box">
       <van-icon name="arrow-left" size="1.5rem" color="#8f8f8f" style="float: left" class="play-title-icon" @click="back"/>
-      <input type="search" placeholder="搜你想听" id="searchInput"/>
+      <input type="search" placeholder="搜你想听" id="searchInput" v-model="keyword" @keyup.enter="search"/>
     </div>
     <div style="height: 64px;"></div>
-    <div id="search-history-box">
+    <div id="search-history-box" v-show="store.state.searchHistory.length">
       <span id="search-history-span"><strong>搜索历史</strong></span>
+      <div id="delete-button-and-icon" @click="deleteHistory">
+        <van-icon name="delete" color="#8f8f8f" size="1rem" id="delete-button"/>
+        <span id="delete-span">清除历史</span>
+      </div>
       <div id="search-history-content-box">
-        <div class="history-item-box" v-for="history in 10" :key="history">
-          <span class="history-item-span">慢冷</span>
+        <div class="history-item-box" v-for="keyword in store.state.searchHistory" :key="keyword">
+          <span class="history-item-span">{{ keyword }}</span>
         </div>
       </div>
     </div>
@@ -23,16 +27,10 @@
           </div>
         </div>
         <div class="rank-box">
-          <div class="rank-item" v-for="keyword in 30" :key="keyword">
-            <div class="rank-num-box">
-              <span :class="keyword <= 3?'rank-num-red': 'rank-num'">{{ keyword }}</span>
-            </div>
-            <span class="rank-keyword">梁静茹</span>
-            <div class="rank-right">
-              <van-icon name="arrow-up" color="#ff0039" size="0.6rem" class="up-icon"/>
-              <span class="up-num">2</span>
-            </div>
-          </div>
+          <rankitem v-for="r in 10" :keyword="'梁静茹'" :rank-num="r" :step="r" :key="r" :type="'up'"></rankitem>
+          <rankitem v-for="r in 10" :keyword="'梁静茹'" :rank-num="r + 20" :step="0" :key="r" :type="'peaceful'"></rankitem>
+          <rankitem v-for="r in 10" :keyword="'梁静茹'" :rank-num="r + 40" :step="-1" :key="r" :type="'down'"></rankitem>
+          <rankitem v-for="r in 10" :keyword="'梁静茹'" :rank-num="r + 40" :step="0" :key="r" :type="'new'"></rankitem>
         </div>
       </div>
     </div>
@@ -41,16 +39,39 @@
 </template>
 
 <script>
-import {useRouter} from "vue-router";
+import {ref, computed, onMounted} from "vue"
+import {useRouter} from "vue-router"
+import {useStore} from "vuex"
+import Rankitem from "@/components/publiccomponent/rankItem/rankitem"
+import {Toast} from "vant"
 export default {
   name: "search",
+  components: {Rankitem},
   setup() {
+    let store = useStore()
+    let historyKeyword = ref([])
+    let keyword = ref('')
     let router = useRouter()
     const back = () => {
       router.go(-1)
     }
+    const search = async () => {
+      if (keyword.value.trim()) {
+        store.commit('CHANGE_SEARCH_HISTORY', keyword.value)
+      } else {
+        Toast('请输入内容')
+      }
+    }
+    const deleteHistory = () => {
+      store.commit('RESET_SEARCH_HISTORY')
+    }
     return {
-      back
+      back,
+      search,
+      deleteHistory,
+      historyKeyword,
+      keyword,
+      store,
     }
   }
 }
@@ -82,23 +103,18 @@ export default {
     color: #8f8f8f;
     text-indent: 10px;
   }
-  .van-search{
-    padding: 0;
-    width: 85%;
-    margin: 0 auto;
-  }
   #search-history-box{
     width: 94%;
     margin: 0 auto;
     margin-left: 6%;
   }
   .history-item-box{
-    height: 25px;
-    width: 40px;
     background-color: #FFF;
     border-radius: 15px;
     text-align: center;
     display: inline-block;
+    padding-left: 5px;
+    padding-right: 5px;
     margin: 5px 0;
     margin-right: 10px;
   }
@@ -117,27 +133,13 @@ export default {
   #search-card-content::-webkit-scrollbar{
     display: none;
   }
-  .up-icon{
-    font-weight: bolder;
-  }
-  .up-num{
-    color: #ff0039;
-    font-size: 10px;
-    margin-left: 4px;
-  }
-  .rank-num{
-    color: #8f8f8f;
-  }
-  .rank-num-red{
-    color: #ff0039;
-  }
   .rank-box{
     width: 90%;
     margin: 0 auto;
     padding-bottom: 10px;
   }
   #play-button{
-    width: 60px;
+    width: 55px;
     height: 24px;
     border-radius: 15px;
     background-color: #eaeaea;
@@ -169,19 +171,16 @@ export default {
   .search-card-box:first-child{
     margin-left: 6%;
   }
-  .rank-right{
+  #delete-span{
+    font-size: 12px;
+    color: #8f8f8f;
+    margin-left: 2px;
+  }
+  #delete-button-and-icon{
     float: right;
-  }
-  .rank-num-box{
-    width: 16px;
-    text-align: center;
-    display: inline-block;
-  }
-  .rank-keyword{
-    font-size: 14px;
-    margin-left: 10px;
-  }
-  .rank-item{
-    margin: 10px auto;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    margin-top: 3px;
   }
 </style>
