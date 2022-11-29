@@ -2,7 +2,7 @@
   <div>
     <div class="play-title-box">
       <van-icon name="arrow-left" size="1.5rem" color="#8f8f8f" style="float: left" class="play-title-icon" @click="back"/>
-      <span class="play-title-span"><strong>流行指数榜</strong></span>
+      <span class="play-title-span"><strong>分类歌单</strong></span>
       <van-icon name="search" size="1.5rem" color="#8f8f8f" style="float: right;" class="play-title-icon" @click="search"/>
       <div id="top-category-nav-button-and-all-button">
         <div id="top-category-nav-button">
@@ -61,7 +61,7 @@ export default {
       router.go(-1)
     }
     const search = () => {
-
+      router.push('search')
     }
     const check = (num) => {
       categoryNavNum.value = num
@@ -89,6 +89,7 @@ export default {
     position: fixed;
     background-color: #FFF;
     z-index: 9999;
+    padding-bottom: 5px;
   }
   .play-title-span{
     font-size: 18px;
@@ -131,12 +132,13 @@ export default {
     color: #8f8f8f;
   }
   #clear-fixed-both{
-    height: 108px;
+    height: 93px;
   }
   #play-and-sort-button{
     height: 27px;
     width: 88%;
     margin: 0 auto;
+    margin-top: 10px;
   }
   #play-and-sort-button-left{
     height: 27px;

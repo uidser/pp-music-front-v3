@@ -25,7 +25,7 @@
           <span id="follow-span">关注</span>
         </div>
         <div id="listen-quantity-box">
-          <van-icon name="audio" size="0.5rem" color="#8f8f8f" style="font-weight: bolder"/>
+          <van-icon name="audio" size="0.7rem" color="#8f8f8f" style="font-weight: bolder"/>
           <span id="listen-quantity">2.3万</span>
         </div>
       </div>
@@ -39,12 +39,11 @@
           <van-icon name="play-circle"  size="1.7rem" color="#8f8f8f"/>
           <span id="play-all-span">全部播放</span>
         </div>
-        <div id="play-and-sort-button-right">
-          <span id="hot-span">热门</span>
-        </div>
       </div>
       <div id="song-list-items">
-        <song v-for="(song, index) in 300" :key="song" :show-step="false" :rank-number="index + 1"></song>
+          <van-list v-model:loading="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
+            <song v-for="(song, index) in songListList" :key="song" :show-step="false" :rank-number="index + 1"></song>
+          </van-list>
       </div>
     </div>
     <div id="bottom-safe"></div>
@@ -59,8 +58,11 @@ export default {
   name: "songlistdetail",
   components: {Song},
   setup() {
+    let finished = ref(false)
+    let loading = ref(false)
     let router = useRouter()
     let titleSpanOpacity = ref(0)
+    let songListList = ref(100)
     let playTitleBoxBackGroundColor = ref('rgba(237, 230, 204, 0)')
     const back = () => {
       router.go(-1)
@@ -75,10 +77,23 @@ export default {
         playTitleBoxBackGroundColor.value = `rgba(237, 230, 204, ${titleSpanOpacity.value})`
       })
     })
+    const onLoad = () => {
+      setTimeout(() => {
+        songListList.value += 100
+        loading.value = false
+        if(songListList.value >= 300) {
+          finished.value = true
+        }
+      }, 1000)
+    }
     return {
       router,
       titleSpanOpacity,
       playTitleBoxBackGroundColor,
+      finished,
+      loading,
+      songListList,
+      onLoad,
       back,
       search
     }

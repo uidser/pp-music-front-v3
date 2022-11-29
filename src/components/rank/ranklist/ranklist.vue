@@ -93,6 +93,7 @@
         <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
       </div>
     </div>
+    <div style="height: 50px"></div>
   </div>
 </template>
 
@@ -117,7 +118,7 @@ export default {
 
 <style scoped>
   #clear-top-both{
-    height: 64px;
+    height: 84px;
   }
   .recommend-rank-item{
     height: 110px;
@@ -168,6 +169,7 @@ export default {
   #recommend-rank-list-box{
     white-space: nowrap;
     overflow-y: auto;
+    margin-top: 10px;
   }
   #recommend-rank-list-box::-webkit-scrollbar{
     display: none;

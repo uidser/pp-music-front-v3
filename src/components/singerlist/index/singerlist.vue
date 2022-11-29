@@ -3,7 +3,7 @@
     <div class="top-text-button">
       <van-icon name="arrow-left" size="1.5rem" color="#8f8f8f" class="top-text-button-icon-left" @click="back"/>
       <span class="top-text-button-span"><strong>歌手</strong></span>
-      <van-icon name="search" size="1.5rem" color="#8f8f8f" class="top-text-button-icon-right" />
+      <van-icon name="search" size="1.5rem" color="#8f8f8f" class="top-text-button-icon-right" @click="toSearch"/>
     </div>
     <div id="clear-float-box"></div>
     <div class="always-listen-singer-box">
@@ -285,8 +285,12 @@ export default {
     function toSinger() {
       router.push('/singer')
     }
+    const toSearch = () => {
+      router.push('search')
+    }
     return {
       optionNum,
+      toSearch,
       back,
       toSinger
     }
@@ -336,6 +340,7 @@ export default {
   .always-listen-singer-title{
     margin: 5px auto;
     height: 14px;
+    margin-top: 15px;
   }
   .always-listen-singer-cart-item{
     height: 130px;
@@ -392,7 +397,6 @@ export default {
     text-align: center;
     display: inline-block;
     margin-left: 5px;
-    box-shadow: 0px 0px 1px 0px rgba(0,0,0,0.1);
     margin-top: 2.5px;
   }
   .option-span-checked{

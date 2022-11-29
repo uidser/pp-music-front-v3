@@ -45,7 +45,7 @@ export default {
   .content-box{
     width: 96%;
     height: 100px;
-    background-color: #ede6cc;
+    background-color: #FFF;
     border-radius: 10px;
     display: flex;
     align-items: center;

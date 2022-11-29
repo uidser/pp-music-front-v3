@@ -76,6 +76,10 @@ const route = createRouter({
                 {
                     path: 'songListDetail',
                     component: () => import('@/components/songlistdetail/songlistdetail')
+                },
+                {
+                    path: 'search',
+                    component: () => import('@/components/search/search')
                 }
             ]
         }
