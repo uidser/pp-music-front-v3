@@ -4,11 +4,11 @@
       <div>
         <a href="javascript:void(0)" :class="navNum === 0? 'nav-a-checked': 'nav-a'" @click="changeNavNum(0, '/index')">推荐</a>
         <a href="javascript:void(0)" :class="navNum === 1? 'nav-a-checked': 'nav-a'" @click="changeNavNum(1, '/musicBuild')">音乐馆</a>
-        <a href="javascript:void(0)" :class="navNum === 2? 'nav-a-checked': 'nav-a'" @click="changeNavNum(2, '/songList')">歌单</a>
+        <a href="javascript:void(0)" :class="navNum === 2? 'nav-a-checked': 'nav-a'" @click="changeNavNum(2, '/categorySongList')">歌单</a>
       </div>
       <van-search placeholder="搜你想听" shape="round" @click="toSearch"/>
     </div>
-    <div style="height: 90px"></div>
+    <div style="height: 95px"></div>
     <router-view></router-view>
   </div>
 </template>

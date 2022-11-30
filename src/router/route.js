@@ -19,11 +19,7 @@ const route = createRouter({
                         {
                             path: 'musicBuild',
                             component: () => import('@/components/index/musicbuild/musicbuild')
-                        },
-                        {
-                            path: 'my',
-                            component: () => import('@/components/my/index/index')
-                        },
+                        }
                     ]
                 },
                 {
@@ -79,7 +75,11 @@ const route = createRouter({
                 },
                 {
                     path: 'search',
-                    component: () => import('@/components/search/search')
+                    component: () => import('@/components/search/index/search')
+                },
+                {
+                    path: 'my',
+                    component: () => import('@/components/my/index/index')
                 }
             ]
         }

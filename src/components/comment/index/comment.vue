@@ -171,6 +171,7 @@ export default {
     top: 64px;
     background-color: #FFF;
     z-index: 9999;
+    padding-bottom: 10px;
   }
   .comment-sort-box-span{
     font-size: 14px;

@@ -30,10 +30,6 @@
           <van-icon name="play-circle"  size="1.7rem" color="#8f8f8f"/>
           <span id="play-all-span">全部播放</span>
         </div>
-        <div id="play-and-sort-button-right">
-          <span id="hot-span">热门</span>
-          <van-icon name="descending" size="1rem" color="#8f8f8f"/>
-        </div>
       </div>
       <div id="rank-list">
         <van-list v-model:loading="loading" :finished="finished" error-text="请求失败，点击重新加载" @load="onLoad">

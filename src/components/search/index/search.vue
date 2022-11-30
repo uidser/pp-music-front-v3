@@ -2,22 +2,25 @@
   <div>
     <div class="play-title-box">
       <van-icon name="arrow-left" size="1.5rem" color="#8f8f8f" style="float: left" class="play-title-icon" @click="back"/>
-      <input type="search" placeholder="搜你想听" id="searchInput" v-model="keyword" @keyup.enter="search"/>
+      <input type="search" placeholder="搜你想听" id="searchInput" v-model="mainKeyword" @keyup.enter="search(0)" @input="search(1)"/>
     </div>
     <div style="height: 64px;"></div>
-    <div id="search-history-box" v-show="store.state.searchHistory.length">
+    <div id="search-loading-box" v-show="showLoading">
+      <van-loading type="spinner" />
+    </div>
+    <div id="search-history-box" v-show="store.state.searchHistory.length && !showLoading">
       <span id="search-history-span"><strong>搜索历史</strong></span>
       <div id="delete-button-and-icon" @click="deleteHistory">
         <van-icon name="delete" color="#8f8f8f" size="1rem" id="delete-button"/>
         <span id="delete-span">清除历史</span>
       </div>
-      <div id="search-history-content-box">
-        <div class="history-item-box" v-for="keyword in store.state.searchHistory" :key="keyword">
+      <div id="search-history-content-box" v-show="!showLoading">
+        <div class="history-item-box" v-for="keyword in store.state.searchHistory" :key="keyword" @click="selectKeyword(keyword)">
           <span class="history-item-span">{{ keyword }}</span>
         </div>
       </div>
     </div>
-    <div id="search-card-content">
+    <div id="search-card-content"  v-show="!showLoading">
       <div class="search-card-box" v-for="card in 5" :key="card">
         <div class="search-top-span-and-button">
           <span class="card-title"><strong>热门搜索</strong></span>
@@ -39,7 +42,7 @@
 </template>
 
 <script>
-import {ref, computed, onMounted} from "vue"
+import {ref, onMounted} from "vue"
 import {useRouter} from "vue-router"
 import {useStore} from "vuex"
 import Rankitem from "@/components/publiccomponent/rankItem/rankitem"
@@ -50,27 +53,53 @@ export default {
   setup() {
     let store = useStore()
     let historyKeyword = ref([])
-    let keyword = ref('')
+    let mainKeyword = ref('')
     let router = useRouter()
+    let showLoading = ref(false)
+    onMounted(() => {
+      store.getters.searchHistory
+    })
     const back = () => {
       router.go(-1)
     }
-    const search = async () => {
-      if (keyword.value.trim()) {
-        store.commit('CHANGE_SEARCH_HISTORY', keyword.value)
+    const search = async (event) => {
+      if (event) {
+        if(mainKeyword.value.trim()) {
+          showLoading.value = true
+        } else {
+          showLoading.value = false
+        }
       } else {
-        Toast('请输入内容')
+        if (mainKeyword.value.trim()) {
+          showLoading.value = true
+          store.commit('CHANGE_SEARCH_HISTORY', mainKeyword.value)
+        } else {
+          if (event) {
+            showLoading.value = false
+          } else {
+            showLoading.value = false
+            Toast('请输入内容')
+          }
+        }
       }
     }
     const deleteHistory = () => {
       store.commit('RESET_SEARCH_HISTORY')
     }
+    const selectKeyword = (keyword) => {
+      if (keyword.trim()) {
+        mainKeyword.value = keyword
+        search()
+      }
+    }
     return {
       back,
       search,
       deleteHistory,
+      selectKeyword,
+      showLoading,
       historyKeyword,
-      keyword,
+      mainKeyword,
       store,
     }
   }
@@ -182,5 +211,11 @@ export default {
     display: flex;
     align-items: center;
     margin-top: 3px;
+  }
+  #search-loading-box{
+    width: 40px;
+    display: block;
+    margin: 0 auto;
+    margin-top: 50%;
   }
 </style>

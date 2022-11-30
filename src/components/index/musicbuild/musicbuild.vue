@@ -29,10 +29,6 @@
           <span>分类歌单</span>
         </div>
         <div class="icon-button-div">
-          <van-icon name="volume" color="#8F8F8FFF" size="3rem" class="icon-button"/>
-          <span>电台</span>
-        </div>
-        <div class="icon-button-div">
           <van-icon name="shopping-cart" color="#8F8F8FFF" size="3rem" class="icon-button"/>
           <span>商城</span>
         </div>
@@ -294,7 +290,7 @@ export default {
     display: block;
   }
   .icon-button-div{
-    width: 20%;
+    width: 25%;
     text-align: center;
     float: left;
   }

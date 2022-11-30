@@ -198,6 +198,7 @@ export default {
     margin-bottom: 20px;
     width: 92%;
     margin: 0 auto;
+    margin-top: 10px;
   }
   .profile-picture-box{
     height: 35px;
@@ -287,7 +288,6 @@ export default {
     width: 100%;
     margin: 0 auto;
     height: 20px;
-    background-color: #FFF;
   }
   #comment-sort-box-span-comment {
     float: left;
