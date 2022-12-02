@@ -1,5 +1,6 @@
 import {createStore} from "vuex"
 import analyze from 'rgbaster'
+import JsCookie from "js-cookie"
 const index = createStore({
   state() {
     return {
@@ -188,6 +189,9 @@ const index = createStore({
       }
       state.searchHistory = JSON.parse(localStorage.getItem('searchHistoryKeyword')).keyword
       return JSON.parse(localStorage.getItem('searchHistoryKeyword')).keyword
+    },
+    token() {
+      return JsCookie.getItem('token')
     }
   }
 })
