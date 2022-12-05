@@ -2,7 +2,7 @@
   <div >
     <input type="search" placeholder="搜你想听" id="searchInput" @click="toSearch"/>
     <div id="user-box">
-      <div id="profile-name-follow-box">
+      <div id="profile-name-follow-box" v-show="store.getters.token">
         <div id="profile-picture-box">
           <img src="/img/1000.jpg" width="60"/>
         </div>
@@ -14,6 +14,14 @@
         <div class="follow-box">
           <span class="follow-quantity">0</span>
           <span class="follow-span">新歌</span>
+        </div>
+      </div>
+      <div id="profile-name-follow-box" v-show="!store.getters.token" @click="toLogin">
+        <div id="login-button-box">
+          <div id="login-button">
+            <van-icon name="manager" color="#FFF" size="1.5rem" id="login-button-icon"/>
+            <span id="login-button-span">立即登录</span>
+          </div>
         </div>
       </div>
     </div>
@@ -53,10 +61,12 @@
 </template>
 
 <script>
+import {useStore} from "vuex";
 import {useRouter} from "vue-router";
 export default {
   name: "index",
   setup() {
+    let store = useStore()
     let router = useRouter()
     const toSearch = () => {
       router.push('search')
@@ -64,8 +74,13 @@ export default {
     const toSongList = () => {
       router.push('/songListDetail')
     }
+    const toLogin = () => {
+      router.push('/login')
+    }
     return {
       router,
+      store,
+      toLogin,
       toSongList,
       toSearch
     }
@@ -203,5 +218,22 @@ export default {
     display: flex;
     align-items: center;
     margin: 10px auto;
+  }
+  #login-button-box{
+    display: flex;
+    align-items: center;
+  }
+  #login-button{
+    width: 40vw;
+    background-color: #8f8f8f;
+    border-radius: 20px;
+    margin: 20px 20px;
+    text-align: center;
+  }
+  #login-button-span{
+    display: inline-block;
+    color: #FFF;
+    font-size: 20px;
+    margin: 5px 0;
   }
 </style>

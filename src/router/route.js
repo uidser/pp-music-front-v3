@@ -80,6 +80,10 @@ const route = createRouter({
                 {
                     path: 'my',
                     component: () => import('@/components/my/index/index')
+                },
+                {
+                    path: 'login',
+                    component: () => import('@/components/login/login')
                 }
             ]
         }

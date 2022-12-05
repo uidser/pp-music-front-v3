@@ -7,17 +7,17 @@
     </div>
     <div class="song-music-picture-box" ref="animation">
       <div class="song-music-picture-content">
-        <van-image width="300" :src="store.getters.currentSongPictureSrc" ref="img"/>
+        <van-image width="300" :src="store.state.currentSong?store.state.currentSong.mediaProfilePictureImg: store.getters.songList[0].mediaProfilePictureImg" ref="img"/>
       </div>
     </div>
     <div class="song-detail-box">
       <div class="song-name">
-        <span class="song-name-span">{{ store.getters.currentSingerName.split('-')[0] }}</span>
-        <van-icon name="like-o" color="#8f8f8f" size="2rem" style="float: right;" badge="99+" :badge-props="{color: '#8f8f8f'}" />
+        <span class="song-name-span" ref="songNameSpan"><p :id="store.state.currentSongNameAnimation?'song-name-p-animation': 'song-name-p'" ref="songNameP">{{ store.getters.currentSingerName.split('-')[0] }}</p></span>
+        <van-icon name="like-o" color="#8f8f8f" size="2rem" style="float: right;" :badge="store.state.currentMediaLikeQuantity" :badge-props="{color: '#8f8f8f'}" />
       </div>
       <div class="song-owner-name-and-button">
         <div class="play-owner-box">
-          <span class="play-owner-span">{{ store.getters.currentSingerName.split('-')[1] }}</span>
+          <span class="play-owner-span" ref="playOwnerSpan"><p :id="store.state.currentAuthorAnimation?'play-owner-p-animation': 'play-owner-p'" ref="playOwnerP">{{ store.getters.currentSingerName.split('-')[1] }}</p></span>
         </div>
         <div class="follow-button">
           <span class="follow-span">关注</span>
@@ -39,11 +39,11 @@
 <!--        <audio class="song-audio" ref="audio" @canplay="loadFinish" :loop="loop"></audio>-->
         <div class="audio-progress">
           <div style="position: relative">
-            <van-progress :percentage="progressTage" @click="changeProgress" @change="changeProgress" pivot-color="#dbb833" color="linear-gradient(to right, #e8d58d, #dbb833)" stroke-width="5" pivot-text=" "/>
+            <van-progress :percentage="progressTage" @click="changeProgress" @change="changeProgress" pivot-color="#dbb833" :color="store.state.currentMainColor?`linear-gradient(to right, ${store.state.currentMainColor}, ${store.state.currentMainColor})`: 'linear-gradient(to right, #e8d58d, #dbb833)'" stroke-width="5" pivot-text=" "/>
             <input type="range" min="0" max="360" ref="progressTageRef" @change="changeProgress" style="width: 101%;position: absolute; top: 0px;height: 5px;left: -3px; opacity: 0">
           </div>
           <div class="current-time">
-            <span>{{ currentTime }}</span>
+            <span>{{ store.state.currentTimeMin }}</span>
           </div>
           <div class="total-time">
             <span>{{ store.getters.totalTime }}</span>
@@ -54,8 +54,8 @@
             <van-icon name="replay" size="2.5rem" color="#8f8f8f" v-show="showReplay" @click="replay" class="audio-button-box-i" style="opacity: 70%;"/>
             <van-icon name="descending" size="2.5rem" color="#8f8f8f" v-show="!showReplay" @click="order" class="audio-button-box-i" style="opacity: 70%;"/>
             <van-icon name="arrow-left" size="2.5rem" color="#8f8f8f" @click="previous" class="audio-button-box-i"/>
-            <van-icon name="play-circle-o" size="4rem" color="#8f8f8f" v-if="!isPlayer" @click="playerMusic" class="audio-button-box-i"/>
-            <van-icon name="pause-circle-o" size="4rem" color="#8f8f8f" v-if="isPlayer" @click="stopMusic" class="audio-button-box-i"/>
+            <van-icon name="play-circle-o" size="4rem" color="#8f8f8f" v-if="!store.state.isPlay" @click="playerMusic" class="audio-button-box-i"/>
+            <van-icon name="pause-circle-o" size="4rem" color="#8f8f8f" v-if="store.state.isPlay" @click="stopMusic" class="audio-button-box-i"/>
             <van-icon name="arrow" size="2.5rem" color="#8f8f8f" @click="nextSong" class="audio-button-box-i" />
             <van-icon name="wap-nav" size="2.5rem" color="#8f8f8f" @click="showSongList" class="audio-button-box-i" style="opacity: 70%;"/>
           </div>
@@ -91,14 +91,22 @@ export default {
     let show = ref(false)
     let showReplay = ref(false)
     let loop = ref(false)
-    // let songList = ref([
-    //   { src: '/song/manleng.mp3', id: 1, 'name': '慢冷 - 梁静茹' },
-    //   { src: '/song/LilNasX-STARWALKIN(LeagueofLegendsWorldsAnthem).mp3', id: 2, 'name': 'STARWALKIN - LilNasX' }
-    // ])
+    let songNameP = ref()
+    let songNameSpan = ref()
+    let playOwnerP = ref()
+    let playOwnerSpan = ref()
     onBeforeUnmount(() => {
       pubSub.unsubscribe('action')
+      pubSub.unsubscribe('changeIsPlayPubSub')
     })
     onMounted(() => {
+      pubSub.subscribe('changeIsPlayPubSub', (name, msg) => {
+        if (msg) {
+          playerMusic()
+        } else {
+          stopMusic()
+        }
+      })
       pubSub.subscribe('action', (name, msg) => {
         if(msg) {
           playerMusic()
@@ -111,7 +119,7 @@ export default {
         computeTime = setInterval(() => {
           progressTage.value = store.getters.progressTage
           if(store.getters.progressTage >= 100) {
-            if (store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/'), store.getters.currentSongSrc.length -1) === store.getters.songList[store.getters.songList.length - 1].src.substring(store.getters.songList[store.getters.songList.length - 1].src.lastIndexOf('/'), store.getters.songList[store.getters.songList.length - 1].src.length - 1)) {
+            if (store.state.currentSong.id === store.getters.songList[store.getters.songList.length - 1].id) {
               computeTimer()
               stopMusic()
               Toast('已经是最后一首了')
@@ -138,13 +146,7 @@ export default {
       await clearInterval(timer)
     }
     function computeTimer() {
-      let min = store.getters.currentTime / 60
-      let sec = store.getters.currentTime % 60
-      if (sec.toString().split('.')[0].length < 2) {
-        currentTime.value = '0' + min.toString().split('.')[0] + ':' + '0' + sec.toString().split('.')[0]
-      } else {
-        currentTime.value = '0' + min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
-      }
+      store.commit('CHANGE_CURRENT_TIME_MIN')
     }
     function playerMusic() {
       if (store.getters.isPlay) {
@@ -154,11 +156,13 @@ export default {
         pubSub.publish('playOrStop', true)
       }
       isPlayer.value = true
+      store.commit('RESET_SONG_NAME_ANIMATION', { ref1: songNameP.value, ref2: songNameSpan.value })
+      store.commit('RESET_AUTHOR_ANIMATION', { ref1: playOwnerP.value, ref2: playOwnerSpan.value })
       window.clearInterval(computeTime)
       computeTime = setInterval( () => {
         progressTage.value = store.getters.progressTage
         if(store.getters.progressTage >= 100) {
-          if (store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/'), store.getters.currentSongSrc.length -1) === store.getters.songList[store.getters.songList.length - 1].src.substring(store.getters.songList[store.getters.songList.length - 1].src.lastIndexOf('/'), store.getters.songList[store.getters.songList.length - 1].src.length - 1)) {
+          if (store.state.currentSong.id === store.getters.songList[store.getters.songList.length - 1].id) {
             computeTimer()
             stopMusic()
             Toast('已经是最后一首了')
@@ -193,19 +197,18 @@ export default {
       pubSub.publish('changeCurrenTimeAndProgressTage', currentTime + ':' + progressTage.value)
       playerMusic()
     }
-    function nextSong() {
-      let src = store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/') + 1, store.getters.currentSongSrc.length)
-      store.getters.songList.forEach((song, index) => {
-        let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
-        if (subSrc === src) {
-          if(index < store.getters.songList.length - 1) {
-            store.commit('changeCurrentSongSrc', store.getters.songList[index + 1].src)
-            store.commit('changeCurrentTime', 0)
-            store.commit('changeCurrentSongPictureSrc', store.getters.songList[index + 1].songPicture)
-            store.commit('changeCurrentSingerName', store.getters.songList[index + 1].name)
+    async function nextSong() {
+      for (let i = 0; i < store.getters.songList.length; i++) {
+        if (store.state.currentSong.id === store.getters.songList[i].id) {
+          if(i < store.getters.songList.length - 1) {
+            store.commit('CHANGE_CURRENT_SONG', store.getters.songList[i + 1])
+            store.commit('RESET_CURRENT_MAIN_COLOR')
+            store.commit('changeCurrentSingerName', store.getters.songList[i + 1].name + ' - ' + store.getters.songList[i + 1].author)
             stopMusic()
-            pubSub.publish('changeCurrentSongSrcPubSub', store.getters.songList[index + 1].src)
+            pubSub.publish('changeCurrentSongSrcPubSub', store.getters.songList[i + 1])
             playerMusic()
+            store.commit('RESET_SONG_NAME_ANIMATION', { ref1: songNameP.value, ref2: songNameSpan.value })
+            break
           } else {
             clearInterval(computeTime)
             clearInterval(timer)
@@ -215,21 +218,20 @@ export default {
             }
           }
         }
-      })
-
+      }
     }
-    function previous() {
-      let src = store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/') + 1, store.getters.currentSongSrc.length)
+    async function previous() {
       store.getters.songList.forEach((song, index) => {
-        let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
-        if (subSrc === src) {
+        if (store.state.currentSong.id === song.id) {
           if(index - 1 > -1) {
             store.commit('changeCurrentTime', 0)
             stopMusic()
-            pubSub.publish('changeCurrentSongSrcPubSub', store.getters.songList[index - 1].src)
-            store.commit('changeCurrentSongPictureSrc', store.getters.songList[index - 1].songPicture)
-            store.commit('changeCurrentSingerName', store.getters.songList[index - 1].name)
+            store.commit('CHANGE_CURRENT_SONG', store.getters.songList[index - 1])
+            pubSub.publish('changeCurrentSongSrcPubSub', store.getters.songList[index - 1])
+            store.commit('RESET_CURRENT_MAIN_COLOR')
+            store.commit('changeCurrentSingerName', store.getters.songList[index - 1].name + ' - ' + store.getters.songList[index - 1].author)
             playerMusic()
+            store.commit('RESET_SONG_NAME_ANIMATION', { ref1: songNameP.value, ref2: songNameSpan.value })
           } else {
             Toast('已经是第一首了')
           }
@@ -244,21 +246,6 @@ export default {
         totalTime.value = min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
       }
     }
-    // async function onSelect(item) {
-    //   store.commit('changeCurrentSongSrc', item.src)
-    //   let src = store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/') + 1, store.getters.currentSongSrc.length)
-    //   store.getters.songList.forEach((song) => {
-    //     song.color = ''
-    //     let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
-    //     if (subSrc === src) {
-    //       song.color = '#ee0a24'
-    //       pubSub.publish('changeCurrentSongSrcPubSub', item.src)
-    //       store.commit('changeCurrentTime', 0)
-    //     }
-    //   })
-    //   show.value = false
-    //   playerMusic()
-    // }
     function replay() {
       Toast('顺序播放')
       showReplay.value = !showReplay.value
@@ -291,6 +278,10 @@ export default {
       showReplay,
       loop,
       store,
+      songNameP,
+      songNameSpan,
+      playOwnerP,
+      playOwnerSpan,
       playerMusic,
       stopMusic,
       back,
@@ -369,16 +360,40 @@ export default {
     margin: 0 auto;
   }
   .play-owner-box{
+    width: 15%;
     display: inline-block;
+    overflow: hidden;
   }
   .song-owner-name-and-button{
+    width: 100%;
     position: absolute;
     bottom: 0;
+    display: flex;
+    align-items: center;
   }
   .play-owner-span{
+    display: inline-block;
+    width: 100%;
     font-size: 14px;
   }
+  #play-owner-p{
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+  }
+  #play-owner-p-animation{
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+    animation: titleLoop 10s linear infinite normal;
+  }
   .song-name-span{
+    display: block;
+    overflow: hidden;
+    width: 80%;
+    float: left;
     font-size: 28px;
   }
   .song-name{
@@ -428,5 +443,26 @@ export default {
     height: 66px;
     margin: 0 auto;
     position: relative;
+  }
+  #song-name-p{
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+  }
+  #song-name-p-animation{
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+    animation: titleLoop 15s linear infinite normal;
+  }
+  @keyframes titleLoop {
+    0% {
+      transform: translateX(10%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
   }
 </style>

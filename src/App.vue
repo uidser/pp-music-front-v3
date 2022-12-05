@@ -5,8 +5,8 @@
 </template>
 
 <script>
-import {ref} from "vue"
-import {Toast} from "vant";
+import { ref} from "vue"
+import {Toast} from "vant"
 export default {
   name: 'App',
   setup() {

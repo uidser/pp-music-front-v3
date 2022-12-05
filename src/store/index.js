@@ -5,10 +5,7 @@ const index = createStore({
   state() {
     return {
       isPlay: false,
-      songList: [
-        {src: '/song/manleng.mp3', id: 1, name: '慢冷 - 梁静茹', songPicture: '/img/manleng-album.png' },
-        {src: '/song/LilNasX-STARWALKIN(LeagueofLegendsWorldsAnthem).mp3', id: 2, name: 'STARWALKIN - LilNasX', songPicture: '/img/20221125142653.jpg'}
-      ],
+      songList: [],
       progressTage: 0,
       currentTime: 0,
       duration: 0,
@@ -21,7 +18,14 @@ const index = createStore({
       currentSongPictureSrc: '',
       currentMainColor: '',
       currentSingerName: '',
-      searchHistory: []
+      searchHistory: [],
+      showPLay: false,
+      currentTimeMin: '0:00',
+      currentMediaId: 0,
+      currentSongNameAnimation: false,
+      currentSong: {},
+      currentAuthorAnimation: false,
+      currentIndexSongAuthorNameAnimation: false
     }
   },
   mutations: {
@@ -95,8 +99,63 @@ const index = createStore({
     RESET_SEARCH_HISTORY(state) {
       state.searchHistory = []
       localStorage.removeItem('searchHistoryKeyword')
+    },
+    CHANGE_SHOW_PLAY(state, args) {
+      state.showPLay = args
+    },
+    CHANGE_CURRENT_TIME_MIN(state, args) {
+      let min = state.currentTime / 60
+      let sec = state.currentTime % 60
+      if (sec.toString().split('.')[0].length < 2) {
+        state.currentTimeMin = '0' + min.toString().split('.')[0] + ':' + '0' + sec.toString().split('.')[0]
+      } else {
+        state.currentTimeMin = '0' + min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
+      }
+    },
+    CHANGE_CURRENT_MEDIA_ID(state, args) {
+      state.currentMediaId = args
+    },
+    RESET_CURRENT_MAIN_COLOR(state) {
+      let result = null
+      if (state.currentSong) {
+        result = analyze(state.currentSong.mediaProfilePictureImg, { scale: 0.1})
+      } else {
+        result = analyze(state.songList[0].mediaProfilePictureImg, { scale: 0.1})
+      }
+      result.then(
+        res => {
+          state.currentMainColor = res[0].color
+        }
+      )
+    },
+    RESET_SONG_NAME_ANIMATION(state, ref) {
+      if (ref.ref1.clientWidth > ref.ref2.clientWidth) {
+        state.currentSongNameAnimation = true
+      } else {
+        state.currentSongNameAnimation = false
+      }
+    },
+    RESET_AUTHOR_ANIMATION(state, ref) {
+      console.log(ref.ref1.clientWidth)
+      console.log(ref.ref2.clientWidth)
+      if (ref.ref1.clientWidth > ref.ref2.clientWidth) {
+        state.currentAuthorAnimation = true
+      } else {
+        state.currentAuthorAnimation = false
+      }
+    },
+    CHANGE_CURRENT_SONG(state, args) {
+      state.currentSong = args
+    },
+    RESET_CURRENT_INDEX_SONG_AUTHOR_NAME_ANIMATION(state, ref) {
+      if (ref.ref1.clientWidth > ref.ref2.clientWidth) {
+        state.currentIndexSongAuthorNameAnimation = true
+      } else {
+        state.currentIndexSongAuthorNameAnimation = false
+      }
     }
-  },
+  }
+  ,
   getters: {
     progressTage(state) {
       return state.progressTage
@@ -167,17 +226,17 @@ const index = createStore({
       return state.currentSongPictureSrc
     },
     currentMainColor(state) {
-      let result = null;
-      if (state.currentSongPictureSrc) {
-        result = analyze(state.currentSongPictureSrc, { scale: 0.1})
+      let result = null
+      if (state.currentSong) {
+        result = analyze(state.currentSong.mediaProfilePictureImg, { scale: 0.1, ignore: ['rgb(255 ,255, 255)'] })
       } else {
-        result = analyze(state.songList[0].songPicture, { scale: 0.1})
+        result = analyze(state.songList[0].mediaProfilePictureImg, { scale: 0.1, ignore: [`rgb(255 ,255, 255)`] })
       }
       result.then(
         res => {
           state.currentMainColor = res[0].color
-        }
-      )
+        })
+      state.showPLay = true
       return state.currentMainColor
     },
     currentSingerName(state) {
@@ -191,7 +250,10 @@ const index = createStore({
       return JSON.parse(localStorage.getItem('searchHistoryKeyword')).keyword
     },
     token() {
-      return JsCookie.getItem('token')
+      return JsCookie.get('token')
+    },
+    currentMediaId(state) {
+      return state.currentMediaId
     }
   }
 })

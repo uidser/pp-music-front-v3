@@ -3,21 +3,21 @@
     <transition name="van-fade">
       <router-view></router-view>
     </transition>
-    <div id="audio-player">
+    <audio class="song-audio" ref="audio"></audio>
+    <div id="audio-player" v-if="store.state.showPLay">
       <div class="song-audio-box" @click="toPlay">
-        <audio class="song-audio" ref="audio"></audio>
         <div class="audio-left">
-          <img :src="store.getters.currentSongPictureSrc?store.getters.currentSongPictureSrc: store.getters.songList[0].songPicture" width="50"/>
+          <img :src="store.state.currentSong.mediaProfilePictureImg?store.state.currentSong.mediaProfilePictureImg: store.getters.songList[0].mediaProfilePictureImg" width="50"/>
         </div>
         <div class="audio-right">
-          <span class="audio-song-singer-span">{{ store.getters.currentSingerName }}</span>
+          <span class="audio-song-singer-span" ref="audioSongSingerSpan"><p :id="store.state.currentIndexSongAuthorNameAnimation?'song-singer-p-animation': 'song-singer-p'" ref="songSingerP">{{ store.getters.currentSingerName }}</p></span>
           <div class="audio-button-box">
             <van-icon name="play" size="1.5rem" color="#FFF" v-show="!isPlayer" @click="realPlayerMusic" class="audio-button-box-i"/>
             <van-icon name="pause" size="1.5rem" color="#FFF" v-show="isPlayer" @click="realStopMusic" class="audio-button-box-i"/>
             <van-icon name="wap-nav" size="1.5rem" color="#FFF" id="audio-list-button" @click="realShowSongList"/>
           </div>
           <div class="audio-progress">
-            <van-progress :percentage="progressTage" v-show="progressTage" pivot-color="#7232dd" :color="store.getters.currentMainColor?`linear-gradient(to right, ${store.getters.currentMainColor}, ${store.getters.currentMainColor})`: 'linear-gradient(to right, #e8d58d, #dbb833)'" stroke-width="3" :show-pivot="false"/>
+            <van-progress :percentage="progressTage" v-show="progressTage" pivot-color="#7232dd" :color="store.state.currentMainColor?`linear-gradient(to right, ${store.state.currentMainColor}, ${store.state.currentMainColor})`: 'linear-gradient(to right, #e8d58d, #dbb833)'" stroke-width="3" :show-pivot="false"/>
           </div>
         </div>
       </div>
@@ -36,10 +36,11 @@
   </div>
 </template>
 <script>
-import {onMounted, ref, watch, onBeforeUnmount} from "vue";
+import {onMounted, ref, watch, onBeforeUnmount, onBeforeMount, nextTick} from "vue"
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import pubSub from 'pubsub-js'
+import musicbuildApi from "@/api/musicbuild/musicbuild";
 export default {
   name: "index",
   setup() {
@@ -57,9 +58,10 @@ export default {
     let changeCurrentSongSrc = ref()
     let pubShowSongList = ref()
     let show = ref(false)
-    let songList = ref([
-      { src: '/song/manleng.mp3' }
-    ])
+    let showPlay = ref(false)
+    let songList = ref([])
+    let audioSongSingerSpan = ref()
+    let songSingerP = ref()
     function compute() {
       store.commit('reComputeShowBottomNav')
       store.commit('reComputeMainPlayer')
@@ -74,33 +76,49 @@ export default {
       pubSub.unsubscribe(changeCurrentSongSrc)
       pubSub.unsubscribe(pubShowSongList)
     })
-    onMounted(async () => {
+    async function init() {
       if (localStorage.getItem('songInfo')) {
         var parse = JSON.parse(localStorage.getItem('songInfo'))
-        store.commit('changeCurrentSongSrc', parse.songSrc)
-        await store.getters.songList.forEach((song, index) => {
-          if (song.src.substring(song.src.lastIndexOf('/'), song.src.length).indexOf(parse.songSrc.toString().substring(parse.songSrc.toString().lastIndexOf('/'), parse.songSrc.toString().length)) !== -1) {
-            store.commit('changeCurrentSongPictureSrc', store.getters.songList[index].songPicture)
-            store.commit('changeCurrentSingerName', store.getters.songList[index].name)
-          }
-        })
-        audio.value.src = parse.songSrc
+        if (parse.mediaId) {
+          await musicbuildApi.index().then(
+            response => {
+              store.commit('changeSongList', response.data)
+              store.getters.songList.forEach((song) => {
+                if (song.id === parse.mediaId) {
+                  audio.value.src = song.mediaUrl
+                  store.commit('CHANGE_CURRENT_SONG', song)
+                  store.commit('changeCurrentSingerName', song.name + ' - ' + song.author)
+                }
+              })
+            }
+          )
+        }
       } else {
-        store.commit('changeCurrentSongPictureSrc', store.getters.songList[0].songPicture)
-        store.commit('changeCurrentSingerName', store.getters.songList[0].name)
+        await musicbuildApi.index().then(
+          response => {
+            store.commit('changeSongList', response.data)
+          }
+        )
+        audio.value.src = store.getters.songList[0].mediaUrl
+        store.commit('CHANGE_CURRENT_SONG', store.getters.songList[0])
+        store.commit('changeCurrentSingerName', store.getters.songList[0].name + ' - ' + store.getters.songList[0].author)
       }
+      store.getters.currentMainColor
+      duration()
+    }
+    onMounted(async () => {
       pubShowSongList = pubSub.subscribe('showSongList', (name, msg) => {
         showSongList()
       })
       changeCurrentSongSrc = pubSub.subscribe('changeCurrentSongSrcPubSub', async (name, msg) => {
         stopMusic()
-        store.commit('changeCurrentSongSrc', msg)
-        audio.value.src = msg
+        store.commit('CHANGE_CURRENT_SONG', msg)
+        audio.value.src = msg.mediaUrl
         audio.value.currentTime = 0
         progressTage.value = 0
         await store.commit('changeProgressTage', 0)
         await store.commit('changeCurrentTime', 0)
-        let songInfo = { songSrc: msg, duration: await duration() }
+        let songInfo = { mediaUrl: msg.mediaUrl, mediaId: msg.id }
         localStorage.setItem('songInfo', JSON.stringify(songInfo))
         playerMusic()
         duration()
@@ -120,48 +138,53 @@ export default {
         }
       })
       await compute()
-      if (localStorage.getItem('songInfo')) {
-        var parse1 = JSON.parse(localStorage.getItem('songInfo'))
-        if (parse1.songSrc){
-          audio.value.src = parse1.songSrc
-          store.commit('changeCurrentSongSrc', parse1.songSrc)
-          duration()
-        }
-      } else {
-        audio.value.src = store.getters.songList[0].src
-        store.commit('changeCurrentSongSrc', store.getters.songList[0].src)
-      }
+      nextTick(() => {
+        init()
+      })
     })
     async function onSelect(item) {
-      store.commit('changeCurrentSongSrc', item.src)
-      let src = store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/') + 1, store.getters.currentSongSrc.length)
-      store.getters.songList.forEach((song, index) => {
-        song.color = ''
-        let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
-        if (subSrc === src) {
-          song.color = '#ee0a24'
-          audio.value.src = item.src
-          store.commit('changeCurrentSingerName', store.getters.songList[index].name)
-          store.commit('changeCurrentSongPictureSrc', store.getters.songList[index].songPicture)
-          let songInfo = { songSrc: item.src, duration: duration() }
-          localStorage.setItem('songInfo', JSON.stringify(songInfo))
+      if (item.mediaUrl === store.getters.currentSongSrc) {
+        if (store.getters.progressTage === 100) {
           store.commit('changeCurrentTime', 0)
-          pubSub.publish('action', true)
+          store.commit('changeProgressTage', 0)
+          playerMusic()
         }
-      })
-      playerMusic()
-      show.value = false
+        if (!store.state.isPlay) {
+          playerMusic()
+        }
+        show.value = false
+      } else {
+        store.commit('changeCurrentSongSrc', item.mediaUrl)
+        store.getters.songList.forEach((song) => {
+          song.color = ''
+          if (store.state.currentSong.id === song.id) {
+            song.color = '#ee0a24'
+            audio.value.src = item.mediaUrl
+            store.commit('changeCurrentSingerName', item.name + ' - ' + item.author)
+            store.commit('CHANGE_CURRENT_SONG', item)
+            let songInfo = { mediaUrl: item.mediaUrl, mediaId: item.id }
+            localStorage.setItem('songInfo', JSON.stringify(songInfo))
+            store.commit('changeCurrentTime', 0)
+            pubSub.publish('action', true)
+            store.commit('RESET_CURRENT_MAIN_COLOR')
+          }
+        })
+        duration()
+        playerMusic()
+        show.value = false
+      }
     }
     function realShowSongList() {
       event.cancelBubble = true
       showSongList()
     }
     function showSongList() {
-      let src = store.getters.currentSongSrc.substring(store.getters.currentSongSrc.lastIndexOf('/') + 1, store.getters.currentSongSrc.length)
-      store.getters.songList.forEach((song) => {
+      if (!store.getters.currentSongSrc) {
+        store.commit('changeCurrentSongSrc', store.getters.songList[0].mediaUrl)
+      }
+      store.state.songList.forEach((song) => {
         song.color = ''
-        let subSrc = song.src.substring(song.src.lastIndexOf('/') + 1, song.src.length)
-        if (subSrc === src) {
+        if (store.state.currentSong.id === song.id) {
           song.color = '#ee0a24'
         }
       })
@@ -184,6 +207,8 @@ export default {
       store.commit('changeIsPlay', true)
       isPlayer.value = true
       audio.value.play()
+      pubSub.publish('changeIsPlayPubSub', true)
+      store.commit('RESET_CURRENT_INDEX_SONG_AUTHOR_NAME_ANIMATION', { ref1: songSingerP.value, ref2: audioSongSingerSpan.value })
       computeTime = setInterval(() => {
         progressTage.value = (audio.value.currentTime / audio.value.duration) * 100
         store.commit('changeCurrentTime', audio.value.currentTime)
@@ -192,8 +217,6 @@ export default {
           stopMusic()
         }
       }, 100)
-      let songInfo = { songSrc: audio.value.src, duration: audio.value.duration }
-      localStorage.setItem('songInfo', JSON.stringify(songInfo))
     }
     function stopMusic() {
       store.commit('changeIsPlay', false)
@@ -205,7 +228,7 @@ export default {
       router.push('/play')
     }
     function duration() {
-      let audio1 = new Audio(store.getters.currentSongSrc)
+      let audio1 = new Audio(store.state.currentSong.mediaUrl)
       audio1.addEventListener('loadedmetadata', () => {
         store.commit('changeDuration', audio1.duration)
         return audio1.duration
@@ -230,6 +253,9 @@ export default {
       playOrStop,
       changeCurrentSongSrc,
       pubShowSongList,
+      showPlay,
+      audioSongSingerSpan,
+      songSingerP,
       realShowSongList,
       onSelect,
       showSongList,
@@ -272,12 +298,11 @@ export default {
     float: left;
     box-shadow: 14px 20px 15px -3px rgba(0,0,0,0.1);
     z-index: 99999;
-    z-index: 99999;
   }
   .audio-right{
     height: 50px;
     width: 284px;
-    background-color: v-bind('store.getters.currentMainColor');
+    background-color: v-bind('store.state.currentMainColor');
     display: flex;
     align-items: center;
     border-radius: 0px 25px 25px 0px;
@@ -287,6 +312,8 @@ export default {
   .audio-song-singer-span{
     line-height: 50px;
     margin-left: 20px;
+    width: 70%;
+    overflow: hidden;
     color: #FFF;
     font-size: 14px;
     float: left;
@@ -337,5 +364,26 @@ export default {
     transition-duration: 0.5s;
     position: fixed;
     background-color: white
+  }
+  @keyframes titleLoop {
+    0% {
+      transform: translateX(10%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  #song-singer-p{
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+  }
+  #song-singer-p-animation{
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+    animation: titleLoop 15s linear infinite normal;
   }
 </style>
