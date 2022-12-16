@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { Button, Search, Swipe, SwipeItem, Icon, Progress, Toast, List, Cell, ActionSheet, ShareSheet, PullRefresh, Loading, Field, CellGroup  } from 'vant'
+import { Button, Search, Swipe, SwipeItem, Icon, Progress, Toast, List, Cell, ActionSheet, ShareSheet, PullRefresh, Loading, Field, CellGroup } from 'vant'
 import { Image as VanImage } from 'vant'
 import route from "@/router/route"
 import index from "@/store"

@@ -202,15 +202,13 @@ const index = createStore({
       if(state.duration !== '0:00') {
         let min = state.duration / 60
         let sec = state.duration % 60
-        return min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
-      } else {
-        if (localStorage.getItem('songInfo')) {
-          var parse = JSON.parse(localStorage.getItem('songInfo'))
-          let duration = parse.duration
-          let min = duration / 60
-          let sec = duration % 60
-          return min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
+        let time = min.toString().split('.')[0] + ':' + sec.toString().split('.')[0]
+        if (time.split(':')[1].length < 2) {
+          return min.toString().split('.')[0] + ':' + '0' + sec.toString().split('.')[0]
         }
+        return time
+      } else {
+
       }
       return '0:00'
     },
@@ -228,9 +226,9 @@ const index = createStore({
     currentMainColor(state) {
       let result = null
       if (state.currentSong) {
-        result = analyze(state.currentSong.mediaProfilePictureImg, { scale: 0.1, ignore: ['rgb(255 ,255, 255)'] })
+        result = analyze(state.currentSong.mediaProfilePictureImg, { scale: 0.1 })
       } else {
-        result = analyze(state.songList[0].mediaProfilePictureImg, { scale: 0.1, ignore: [`rgb(255 ,255, 255)`] })
+        result = analyze(state.songList[0].mediaProfilePictureImg, { scale: 0.1 })
       }
       result.then(
         res => {

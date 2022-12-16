@@ -20,7 +20,7 @@
         </div>
       </div>
     </div>
-    <div id="search-card-content"  v-show="!showLoading">
+    <div id="search-card-content"  v-show="!showSearchResult">
       <div class="search-card-box" v-for="card in 5" :key="card">
         <div class="search-top-span-and-button">
           <span class="card-title"><strong>热门搜索</strong></span>
@@ -37,6 +37,9 @@
         </div>
       </div>
     </div>
+    <van-list v-model:loading="loading" :finished="finished" finished-text="没有更多了" @load="onLoad" v-show="showSearchResult" id="song-list">
+      <song v-for="song in songList" :key="song.id" :name="song.name" :author="song.author" :show-step="false"/>
+    </van-list>
     <div style="height: 60px"></div>
   </div>
 </template>
@@ -47,37 +50,58 @@ import {useRouter} from "vue-router"
 import {useStore} from "vuex"
 import Rankitem from "@/components/publiccomponent/rankItem/rankitem"
 import {Toast} from "vant"
+import searchApi from "@/api/search/search"
+import Song from "@/components/publiccomponent/song/song";
 export default {
   name: "search",
-  components: {Rankitem},
+  components: {Song, Rankitem},
   setup() {
     let store = useStore()
     let historyKeyword = ref([])
     let mainKeyword = ref('')
     let router = useRouter()
     let showLoading = ref(false)
+    let showSearchResult = ref(false)
+    let songList = ref([])
     onMounted(() => {
       store.getters.searchHistory
     })
     const back = () => {
       router.go(-1)
     }
+    function query() {
+      searchApi.search({queryText: mainKeyword.value}).then(
+        response => {
+          showLoading.value = false
+          showSearchResult.value = true
+          songList.value = response.data.songList
+        }
+      )
+    }
     const search = async (event) => {
       if (event) {
         if(mainKeyword.value.trim()) {
           showLoading.value = true
+          query()
+          showLoading.value = false
         } else {
+          songList.value = []
+          showSearchResult.value = false
           showLoading.value = false
         }
       } else {
         if (mainKeyword.value.trim()) {
           showLoading.value = true
+          query()
           store.commit('CHANGE_SEARCH_HISTORY', mainKeyword.value)
+          showLoading.value = false
         } else {
           if (event) {
+            songList.value = []
             showLoading.value = false
           } else {
             showLoading.value = false
+            showSearchResult.value = false
             Toast('请输入内容')
           }
         }
@@ -97,6 +121,8 @@ export default {
       search,
       deleteHistory,
       selectKeyword,
+      songList,
+      showSearchResult,
       showLoading,
       historyKeyword,
       mainKeyword,
@@ -217,5 +243,9 @@ export default {
     display: block;
     margin: 0 auto;
     margin-top: 50%;
+  }
+  #song-list{
+    width: 87vw;
+    margin: 0 auto;
   }
 </style>

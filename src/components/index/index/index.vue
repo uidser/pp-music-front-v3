@@ -2,9 +2,9 @@
   <div>
     <div style="position: fixed; background-color: #FFF; box-shadow: 0px 12px 33px 0px rgba(0,0,0,0.1); width: 100%; height: 80px; z-index: 9999; padding-top: 10px">
       <div>
-        <a href="javascript:void(0)" :class="navNum === 0? 'nav-a-checked': 'nav-a'" @click="changeNavNum(0, '/index')">推荐</a>
-        <a href="javascript:void(0)" :class="navNum === 1? 'nav-a-checked': 'nav-a'" @click="changeNavNum(1, '/musicBuild')">音乐馆</a>
-        <a href="javascript:void(0)" :class="navNum === 2? 'nav-a-checked': 'nav-a'" @click="changeNavNum(2, '/categorySongList')">歌单</a>
+        <a href="javascript:void(0)" :class="router.currentRoute.value.path.lastIndexOf('/index') !== -1? 'nav-a-checked': 'nav-a'" @click="changeNavNum(0, '/index')">推荐</a>
+        <a href="javascript:void(0)" :class="router.currentRoute.value.path.lastIndexOf('/musicBuild') !== -1? 'nav-a-checked': 'nav-a'" @click="changeNavNum(1, '/musicBuild')">音乐馆</a>
+        <a href="javascript:void(0)" :class="router.currentRoute.value.path.lastIndexOf('/categorySongList') !== -1? 'nav-a-checked': 'nav-a'" @click="changeNavNum(2, '/categorySongList')">歌单</a>
       </div>
       <van-search placeholder="搜你想听" shape="round" @click="toSearch"/>
     </div>
@@ -31,6 +31,7 @@ export default {
     }
     return {
       navNum,
+      router,
       toSearch,
       changeNavNum
     }

@@ -24,15 +24,19 @@
     </div>
     <div id="bottom-nav">
       <div class="bottom-nav" @click="changeNavNum(0, '/index')">
-        <van-icon name="music" size="2rem" :color="navNum === 0? '#000000': '#8F8F8FFF'" style="display: block"/>
+        <van-icon name="music" size="2rem" :color="router.currentRoute.value.path.lastIndexOf('/index') !== -1 || router.currentRoute.value.path.lastIndexOf('/musicBuild') !== -1? '#000000': '#8F8F8FFF'" style="display: block"/>
         <span>首页</span>
       </div>
       <div class="bottom-nav" @click="changeNavNum(1, '/my')">
-        <van-icon name="manager" size="2rem" :color="navNum === 1? '#000000': '#8F8F8FFF'" style="display: block"/>
+        <van-icon name="manager" size="2rem" :color="router.currentRoute.value.path.lastIndexOf('/my') !== -1? '#000000': '#8F8F8FFF'" style="display: block"/>
         <span>我的</span>
       </div>
     </div>
-    <van-action-sheet v-model:show="show" :actions="store.getters.songList" @select="onSelect" cancel-text="关闭" style="z-index: 10101010"/>
+    <van-action-sheet v-model:show="show" @select="onSelect" cancel-text="关闭" style="z-index: 10101010" description="播放列表">
+      <div v-for="song in store.getters.songList" :key="song.id" class="song-list" @click="changeCurrentSong(song)">
+        <span :class="song.color?'song-list-span-check': 'song-list-span'">{{ song.author + ' - ' + song.name }}</span>
+      </div>
+    </van-action-sheet>
   </div>
 </template>
 <script>
@@ -40,7 +44,7 @@ import {onMounted, ref, watch, onBeforeUnmount, onBeforeMount, nextTick} from "v
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import pubSub from 'pubsub-js'
-import musicbuildApi from "@/api/musicbuild/musicbuild";
+import pageApi from "@/api/page/page";
 export default {
   name: "index",
   setup() {
@@ -62,6 +66,7 @@ export default {
     let songList = ref([])
     let audioSongSingerSpan = ref()
     let songSingerP = ref()
+    let pubSubDuration = ref()
     function compute() {
       store.commit('reComputeShowBottomNav')
       store.commit('reComputeMainPlayer')
@@ -75,14 +80,15 @@ export default {
       pubSub.unsubscribe(playOrStop)
       pubSub.unsubscribe(changeCurrentSongSrc)
       pubSub.unsubscribe(pubShowSongList)
+      pubSub.unsubscribe(pubSubDuration)
     })
     async function init() {
       if (localStorage.getItem('songInfo')) {
         var parse = JSON.parse(localStorage.getItem('songInfo'))
         if (parse.mediaId) {
-          await musicbuildApi.index().then(
+          await pageApi.play().then(
             response => {
-              store.commit('changeSongList', response.data)
+              store.commit('changeSongList', response.data.firstBrowsePlayList)
               store.getters.songList.forEach((song) => {
                 if (song.id === parse.mediaId) {
                   audio.value.src = song.mediaUrl
@@ -94,9 +100,9 @@ export default {
           )
         }
       } else {
-        await musicbuildApi.index().then(
+        await pageApi.play().then(
           response => {
-            store.commit('changeSongList', response.data)
+            store.commit('changeSongList', response.data.firstBrowsePlayList)
           }
         )
         audio.value.src = store.getters.songList[0].mediaUrl
@@ -107,6 +113,9 @@ export default {
       duration()
     }
     onMounted(async () => {
+      pubSubDuration = pubSub.subscribe('computeDuration', (name, msg) => {
+        duration()
+      })
       pubShowSongList = pubSub.subscribe('showSongList', (name, msg) => {
         showSongList()
       })
@@ -199,6 +208,7 @@ export default {
       playerMusic()
     }
     function playerMusic() {
+      audio.value.src = store.state.currentSong.mediaUrl
       if (store.getters.currentTime) {
         audio.value.currentTime = store.getters.currentTime
       } else {
@@ -238,6 +248,9 @@ export default {
       event.cancelBubble = true
       stopMusic()
     }
+    const changeCurrentSong = (song) => {
+      onSelect(song)
+    }
     return {
       isPlayer,
       navNum,
@@ -256,6 +269,8 @@ export default {
       showPlay,
       audioSongSingerSpan,
       songSingerP,
+      router,
+      changeCurrentSong,
       realShowSongList,
       onSelect,
       showSongList,
@@ -385,5 +400,31 @@ export default {
     padding: 0;
     white-space: nowrap;
     animation: titleLoop 15s linear infinite normal;
+  }
+  .song-list{
+    width: 90vw;
+    margin-left: 10vw;
+  }
+  .song-list-span{
+    display: inline-block;
+    width: 80vw;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin: 15px 0;
+  }
+  .song-list-span-check{
+    display: inline-block;
+    width: 80vw;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin: 15px 0;
+    color: #ff0039;
+  }
+  .line{
+    height: 0.5px;
+    width: 80%;
+    background-color: #8f8f8f;
   }
 </style>

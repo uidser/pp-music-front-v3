@@ -1,25 +1,15 @@
 <template>
-  <van-pull-refresh v-model="loading" @refresh="onRefresh">
-    <router-view></router-view>
-  </van-pull-refresh>
+  <router-view></router-view>
 </template>
 
 <script>
 import { ref} from "vue"
-import {Toast} from "vant"
 export default {
   name: 'App',
   setup() {
     let loading = ref(false)
-    function onRefresh() {
-      setTimeout(() => {
-        loading.value = false
-        Toast('刷新成功')
-      }, 1000)
-    }
     return {
-      loading,
-      onRefresh
+      loading
     }
   }
 }

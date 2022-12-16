@@ -2,7 +2,7 @@
   <div>
     <div class="play-title-box">
       <van-icon name="arrow-left" size="1.5rem" color="#FFF" style="float: left" class="play-title-icon" @click="back"/>
-      <span class="play-title-span"><strong>流行指数榜</strong></span>
+      <span class="play-title-span"><strong>{{ rank.name }}</strong></span>
       <van-icon name="share" size="1.5rem" color="#FFF" style="float: right" class="play-title-icon" @click="share"/>
     </div>
     <div id="clear-float-both"></div>
@@ -10,30 +10,31 @@
     <div id="rank-introduction">
       <div id="introduction-content">
         <div id="rank-title-box">
-          <span id="rank-title"><strong>巅峰榜</strong></span>
+          <span id="rank-title"><strong>{{ rank.title }}</strong></span>
           <span id="split-span">&nbsp;-&nbsp;</span>
           <span id="update-periodicity"><strong>每日更新</strong></span>
         </div>
         <div id="rank-profile-picture-box">
           <div id="rank-profile-picture">
-            <img src="/img/manleng-album.png" width="90"/>
+            <img :src="mediaPicture" width="90"/>
           </div>
         </div>
         <div id="album-icon"></div>
-        <span id="rank-detail-name"><strong>流行指数榜</strong></span>
-        <span id="update-time">最近更新 11月22日</span>
+        <span id="rank-detail-name"><strong>{{ rank.name }}</strong></span>
+        <span id="update-time">最近更新 {{ rank.rankUpdateTime }}</span>
       </div>
     </div>
     <div id="rank-content">
       <div id="play-and-sort-button">
-        <div id="play-and-sort-button-left">
+        <div id="play-and-sort-button-left" @click="playRank">
           <van-icon name="play-circle"  size="1.7rem" color="#8f8f8f"/>
           <span id="play-all-span">全部播放</span>
         </div>
       </div>
       <div id="rank-list">
         <van-list v-model:loading="loading" :finished="finished" error-text="请求失败，点击重新加载" @load="onLoad">
-          <song v-for="song in songList" :key="song" :rank-number="song"></song>
+          <song v-for="(media, index) in songList" :key="media.mediaId" :rank-number="index + 1" :name="media.name" :step="media.step" :author="media.author"
+                :album="media.album" @click="play(media)" :clazz="store.state.currentSong.id === media.id?1: 0"></song>
         </van-list>
       </div>
       <div style="height: 50px;"></div>
@@ -54,8 +55,11 @@ import {onMounted, ref} from "vue"
 import {useRouter} from "vue-router"
 import Topbacknav from "@/components/publiccomponent/topbacknav/topbacknav"
 import song from "@/components/publiccomponent/song/song"
+import rankApi from "@/api/rank/rank"
 import useClipboard from 'vue-clipboard3'
-import {Toast} from "vant";
+import {Toast} from "vant"
+import {useStore} from "vuex";
+import pubSub from "pubsub-js";
 export default {
   name: "detail",
   components: {
@@ -73,12 +77,16 @@ export default {
     let loading = ref(false)
     let songList = ref(100)
     let finished = ref(false)
+    let rank = ref({})
+    let mediaPicture = ref('')
+    let store = useStore()
+    let currentSongId = ref(0)
     function back() {
       router.go(-1)
     }
     const onLoad = () => {
       setTimeout(() => {
-        songList.value += 100
+        // songList.value += 100
         loading.value = false
         if (songList.value >= 300) {
           finished.value = true
@@ -86,6 +94,14 @@ export default {
       }, 1000)
     }
     onMounted(() => {
+      let route = router.currentRoute.value
+      rankApi.getRankDetailMediaList(route.params.rankId, route.params.frequency, { current: 1, limit: 100 }).then(
+        response => {
+          songList.value = response.data.mediaList
+          rank.value = response.data
+          mediaPicture.value = songList.value[0].mediaProfilePictureImg
+        }
+      )
       window.addEventListener('scroll', showNavText)
       shareDescription.value = '流行指数榜'
       options.value.push(
@@ -108,6 +124,23 @@ export default {
         Toast.success('复制成功')
       }
     }
+    const playRank = async () => {
+      pubSub.publish('playOrStop', false)
+      await store.commit('changeProgressTage', 0)
+      await store.commit('changeCurrentTime', 0)
+      await store.commit('changeSongList', songList.value)
+      await store.commit('CHANGE_CURRENT_SONG', songList.value[0])
+      store.commit('changeCurrentSingerName', songList.value[0].name + ' - ' + songList.value[0].author)
+      pubSub.publish('playOrStop', true)
+    }
+    const play = async (media) => {
+      pubSub.publish('playOrStop', false)
+      await store.commit('changeProgressTage', 0)
+      await store.commit('changeCurrentTime', 0)
+      await store.commit('CHANGE_CURRENT_SONG', media)
+      store.commit('changeCurrentSingerName', media.name + ' - ' + media.author)
+      pubSub.publish('playOrStop', true)
+    }
     return {
       options,
       topTextOpacity,
@@ -117,6 +150,12 @@ export default {
       loading,
       songList,
       finished,
+      rank,
+      mediaPicture,
+      store,
+      currentSongId,
+      play,
+      playRank,
       onLoad,
       share,
       back,

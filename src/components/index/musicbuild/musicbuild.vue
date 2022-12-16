@@ -158,56 +158,18 @@
         <a href="javascript:void(0)" class="more-song-a">更多 ></a>
       </div>
       <div class="rank-box-content">
-        <div class="rank">
+        <div class="rank" v-for="rank in rankList" :key="rank.id" @click="jump('/rank/detail/' + rank.id + '/' + rank.rankFrequency)">
           <div class="left-box">
-            <img src="/img/manleng-album.png" width="100px"/>
+            <img :src="rank.mediaList[0].mediaProfilePictureImg" width="100" class="rank-img"/>
           </div>
           <div class="content-box">
             <div class="content">
               <div>
-                <span class="rank-title-span"><strong>流行指数榜</strong></span>
+                <span class="rank-title-span"><strong>{{ rank.name }}</strong></span>
                 <span class="rank-content-span" style="display: inline"> _每日更新</span>
               </div>
               <div>
-                <span class="rank-content-span">01 慢冷 - 梁静茹</span>
-                <span class="rank-content-span">02 慢冷 - 梁静茹</span>
-                <span class="rank-content-span">03 慢冷 - 梁静茹</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="rank">
-          <div class="left-box">
-            <img src="/img/manleng-album.png" width="100px"/>
-          </div>
-          <div class="content-box">
-            <div class="content">
-              <div>
-                <span class="rank-title-span"><strong>流行指数榜</strong></span>
-                <span class="rank-content-span" style="display: inline"> _每日更新</span>
-              </div>
-              <div>
-                <span class="rank-content-span">01 慢冷 - 梁静茹</span>
-                <span class="rank-content-span">02 慢冷 - 梁静茹</span>
-                <span class="rank-content-span">03 慢冷 - 梁静茹</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="rank">
-          <div class="left-box">
-            <img src="/img/manleng-album.png" width="100px"/>
-          </div>
-          <div class="content-box">
-            <div class="content">
-              <div>
-                <span class="rank-title-span"><strong>流行指数榜</strong></span>
-                <span class="rank-content-span" style="display: inline"> _每日更新</span>
-              </div>
-              <div>
-                <span class="rank-content-span">01 慢冷 - 梁静茹</span>
-                <span class="rank-content-span">02 慢冷 - 梁静茹</span>
-                <span class="rank-content-span">03 慢冷 - 梁静茹</span>
+                <span class="rank-content-span" v-for="(song, index) in rank.mediaList" :key="song.id">{{ index + 1 + '  ' + song.name }}</span>
               </div>
             </div>
           </div>
@@ -258,21 +220,31 @@
 </template>
 
 <script>
-import { ref } from "vue";
-import {useRouter} from "vue-router";
+import pageApi from "@/api/page/page";
+import {onMounted, ref} from "vue"
+import {useRouter} from "vue-router"
 export default {
   name: "musicbuild",
   setup() {
     let navNum = ref(0)
     let router = useRouter()
+    let rankList = ref([])
     function changeNavNum(num) {
       navNum.value = num
     }
     function jump(path) {
       router.push(path)
     }
+    onMounted(() => {
+      pageApi.musicBuildPage().then(
+        response => {
+          rankList.value = response.data.rankList
+        }
+      )
+    })
     return {
       navNum,
+      rankList,
       changeNavNum,
       jump
     }
@@ -417,7 +389,6 @@ export default {
   }
   .left-box{
     box-shadow: 8px 0px 17px 0px rgba(0,0,0,0.1);
-    background-color: #8f8f8f;
     width: 100px;
     height: 100px;
     border-radius: 10px;
@@ -434,8 +405,8 @@ export default {
   .content-box{
     width: 310px;
     height: 100px;
-    background-color: #ede6cc;
     border-radius: 10px;
+    background-color: #FFF;
     display: flex;
     align-items: center;
   }
@@ -447,6 +418,10 @@ export default {
     font-size: 12px;
     display: block;
     margin-top: 5px;
+    width: 90%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   .content{
     margin-left: 120px;

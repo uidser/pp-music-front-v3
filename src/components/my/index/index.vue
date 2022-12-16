@@ -33,7 +33,7 @@
             <img src="/img/manleng-album.png" width="90"/>
             <span class="type">歌曲</span>
             <div class="tip-box">
-              <van-icon name="play" color="#FFF" size="0.5rem"/>
+              <van-icon name="play" color="#FFF" size="1rem"/>
             </div>
           </div>
           <span class="play-quantity-span">已播歌曲500</span>

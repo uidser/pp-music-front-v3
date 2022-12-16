@@ -1,9 +1,9 @@
 <template>
   <div class="rank">
     <div class="left-box">
-      <img src="/img/manleng-album.png" width="100px"/>
-      <div class="rank-tip-box">
-        <span class="rank-listen-quantity-span">23万</span>
+      <img :src="mediaList[0].mediaProfilePictureImg" width="100"/>
+      <div class="rank-tip-box" :style="'background-color:' + mainColor + ';'">
+        <span class="rank-listen-quantity-span">{{ playQuantity }}</span>
       </div>
     </div>
     <div class="content-box">
@@ -13,9 +13,7 @@
           <span class="rank-content-span" style="display: inline"> _每日更新</span>
         </div>
         <div>
-          <span class="rank-content-span">01 慢冷 - 梁静茹</span>
-          <span class="rank-content-span">02 慢冷 - 梁静茹</span>
-          <span class="rank-content-span">03 慢冷 - 梁静茹</span>
+          <span class="rank-content-span" v-for="(media, index) in mediaList" :key="media.id">{{ index + 1 + ' ' + media.name }}</span>
         </div>
       </div>
     </div>
@@ -24,7 +22,23 @@
 
 <script>
 export default {
-  name: "rank"
+  name: "rank",
+  props: {
+    mediaList: {
+      type: Array,
+      require: true
+    },
+    playQuantity: {
+      type: Number,
+      default: 0,
+      require: true
+    },
+    mainColor: {
+      type: String,
+      default: '',
+      require: true
+    }
+  }
 }
 </script>
 

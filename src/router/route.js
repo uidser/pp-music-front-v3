@@ -55,7 +55,7 @@ const route = createRouter({
                             component: () => import('@/components/rank/ranklist/ranklist')
                         },
                         {
-                            path: 'detail',
+                            path: 'detail/:rankId/:frequency',
                             component: () => import('@/components/rank/detail/detail')
                         }
                     ]

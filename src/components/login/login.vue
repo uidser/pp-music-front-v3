@@ -16,28 +16,39 @@ import userApi from "@/api/user/user"
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 import {Toast} from "vant";
+import pageApi from "@/api/page/page";
+import {useStore} from "vuex";
 
 export default {
   name: "login",
   setup() {
+    let store = useStore()
     let router = useRouter()
     let loading = ref(false)
     let user = ref({
       username: '',
       password: ''
     })
-    const login = () => {
+    const login = async () => {
       loading.value = true
-      userApi.login(user.value).then(
+      await userApi.login(user.value).then(
         response => {
           if (response.code === 200) {
-            JsCookie.set('token', response.data)
+            JsCookie.set('token', response.data, { path: '/', expires: 30 })
             loading.value = false
             Toast('登陆成功')
-            router.go(-1)
           }
         }
       )
+      await pageApi.play().then(
+        response => {
+          store.commit('changeSongList', response.data.firstBrowsePlayList)
+        }
+      )
+      store.commit('CHANGE_CURRENT_SONG', store.getters.songList[0])
+      store.commit('changeCurrentSingerName', store.getters.songList[0].name + ' - ' + store.getters.songList[0].author)
+      store.getters.currentMainColor
+      router.go(-1)
     }
     const githubLogin = () => {
 

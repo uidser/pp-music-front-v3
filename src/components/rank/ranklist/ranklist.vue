@@ -5,74 +5,14 @@
     <div id="recommend-box">
       <span class="rank-title-item-span">推荐</span>
       <div id="recommend-rank-list-box">
-        <div class="recommend-rank-item">
-          <img src="/img/manleng-album.png" width="110" style="position: absolute; left: 0; top: 0;"/>
+        <div class="recommend-rank-item" v-for="rank in rankList" :key="rank.id" @click="jump('/rank/detail/' + rank.id + '/' + rank.rankFrequency)">
+          <img :src="rank.mediaList[0].mediaProfilePictureImg" width="110" style="position: absolute; left: 0; top: 0;"/>
           <div class="rank-title-and-button">
             <div class="rank-line-box"></div>
-            <span class="rank-name-span">INDIE 图鉴榜</span>
+            <span class="rank-name-span">{{ 'top  ' + rank.name }}</span>
           </div>
-          <div class="rank-tip-box">
-            <span class="rank-listen-quantity-span">23万</span>
-          </div>
-        </div>
-        <div class="recommend-rank-item">
-          <img src="/img/manleng-album.png" width="110" style="position: absolute; left: 0; top: 0;"/>
-          <div class="rank-title-and-button">
-            <div class="rank-line-box"></div>
-            <span class="rank-name-span">INDIE 图鉴榜</span>
-          </div>
-          <div class="rank-tip-box">
-            <span class="rank-listen-quantity-span">23万</span>
-          </div>
-        </div>
-        <div class="recommend-rank-item">
-          <img src="/img/manleng-album.png" width="110" style="position: absolute; left: 0; top: 0;"/>
-          <div class="rank-title-and-button">
-            <div class="rank-line-box"></div>
-            <span class="rank-name-span">INDIE 图鉴榜</span>
-          </div>
-          <div class="rank-tip-box">
-            <span class="rank-listen-quantity-span">23万</span>
-          </div>
-        </div>
-        <div class="recommend-rank-item">
-          <img src="/img/manleng-album.png" width="110" style="position: absolute; left: 0; top: 0;"/>
-          <div class="rank-title-and-button">
-            <div class="rank-line-box"></div>
-            <span class="rank-name-span">INDIE 图鉴榜</span>
-          </div>
-          <div class="rank-tip-box">
-            <span class="rank-listen-quantity-span">23万</span>
-          </div>
-        </div>
-        <div class="recommend-rank-item">
-          <img src="/img/manleng-album.png" width="110" style="position: absolute; left: 0; top: 0;"/>
-          <div class="rank-title-and-button">
-            <div class="rank-line-box"></div>
-            <span class="rank-name-span">INDIE 图鉴榜</span>
-          </div>
-          <div class="rank-tip-box">
-            <span class="rank-listen-quantity-span">23万</span>
-          </div>
-        </div>
-        <div class="recommend-rank-item">
-          <img src="/img/manleng-album.png" width="110" style="position: absolute; left: 0; top: 0;"/>
-          <div class="rank-title-and-button">
-            <div class="rank-line-box"></div>
-            <span class="rank-name-span">INDIE 图鉴榜</span>
-          </div>
-          <div class="rank-tip-box">
-            <span class="rank-listen-quantity-span">23万</span>
-          </div>
-        </div>
-        <div class="recommend-rank-item">
-          <img src="/img/manleng-album.png" width="110" style="position: absolute; left: 0; top: 0;"/>
-          <div class="rank-title-and-button">
-            <div class="rank-line-box"></div>
-            <span class="rank-name-span">INDIE 图鉴榜</span>
-          </div>
-          <div class="rank-tip-box">
-            <span class="rank-listen-quantity-span">23万</span>
+          <div class="rank-tip-box" :ref="getMainColor(rank.id, rank.mediaList[0].mediaProfilePictureImg)" :style="'background-color:' + mainColorMap.get(rank.id) + ';'">
+            <span class="rank-listen-quantity-span">{{ rank.rankListenQuantity }}</span>
           </div>
         </div>
       </div>
@@ -80,17 +20,7 @@
     <div id="rank-top-box">
       <span class="rank-title-item-span">巅峰榜</span>
       <div id="top-rank-list">
-        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
-        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
-        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
-        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
-        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
-        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
-        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
-        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
-        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
-        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
-        <rank class="top-rank-item" @click="jump('/rank/detail')"></rank>
+        <rank v-for="rank in rankList" :key="rank.id" :ref="getMainColor(rank.id, rank.mediaList[0].mediaProfilePictureImg)" :play-quantity="rank.rankListenQuantity" :media-list="rank.mediaList" @click="jump('/rank/detail/' + rank.id + '/' + rank.rankFrequency)" class="rank-item" :main-color="mainColorMap.get(rank.id)"></rank>
       </div>
     </div>
     <div style="height: 50px"></div>
@@ -98,18 +28,48 @@
 </template>
 
 <script>
-import {useRouter} from "vue-router";
-import Topbacknav from "@/components/publiccomponent/topbacknav/topbacknav";
-import Rank from "@/components/publiccomponent/rank/rank";
+import analyze from "rgbaster"
+import {ref} from "vue"
+import rankApi from "@/api/rank/rank"
+import {useRouter} from "vue-router"
+import Topbacknav from "@/components/publiccomponent/topbacknav/topbacknav"
+import Rank from "@/components/publiccomponent/rank/rank"
+import {onMounted} from "vue"
 export default {
   name: "ranklist",
   components: {Rank, Topbacknav},
   setup() {
     let router = useRouter()
+    let rankList = ref([])
+    let mainColorMap = ref(new Map)
+    onMounted(() => {
+      getAllRank()
+    })
     function jump(path) {
       router.push(path)
     }
+    const getAllRank = () => {
+      rankApi.getAll().then(
+        response => {
+          rankList.value = response.data
+        }
+      )
+    }
+    const getMainColor = async (id, path) => {
+      // let color = '#bfbfbf'
+      let color = ''
+      await analyze(path).then(
+        res => {
+          color = res[0].color
+        }
+      )
+      mainColorMap.value.set(id, color)
+    }
     return {
+      rankList,
+      mainColorMap,
+      getAllRank,
+      getMainColor,
       jump
     }
   }
@@ -136,7 +96,6 @@ export default {
     width: 35px;
     border-radius: 10px;
     text-align: center;
-    background-color: #bfbfbf;
     position: absolute;
     bottom: 0;
   }
@@ -196,5 +155,8 @@ export default {
   }
   #top-nav{
     z-index: 9999;
+  }
+  .rank-item{
+    margin: 10px 0;
   }
 </style>

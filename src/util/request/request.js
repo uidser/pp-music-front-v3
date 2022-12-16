@@ -1,7 +1,6 @@
 import axios from "axios"
-import store from "@/store"
-import {Toast} from "vant";
-
+import {Toast} from "vant"
+import jsCookie from "js-cookie"
 const service = axios.create({
   baseURL: '/api',
   timeout: 5000
@@ -9,8 +8,8 @@ const service = axios.create({
 
 service.interceptors.request.use(
   config => {
-    if (store.getters.token) {
-      config.headers['token'] = store.getters.token
+    if (jsCookie.get('token')) {
+      config.headers['token'] = jsCookie.get('token')
     }
     return config
   },
@@ -22,6 +21,10 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     const res = response.data
+    if (res.code === 403) {
+      Toast('请登录')
+      return Promise.reject(new Error('请登录'))
+    }
     if (res.code !== 200) {
       Toast(res.msg || 'Error')
       return Promise.reject(new Error(res.msg || 'Error'))
