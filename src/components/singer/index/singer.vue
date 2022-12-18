@@ -1079,7 +1079,7 @@ export default {
   #album-box-top-button{
     display: flex;
     align-items: center;
-    width: 100vw;
+    width: 90%;
   }
   #option-span{
     font-size: 14px;
