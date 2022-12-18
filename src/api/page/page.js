@@ -14,5 +14,11 @@ export default {
       url: BASE_MEDIA_PAGE_API + '/musicBuild',
       method: 'get'
     })
+  },
+  singerList() {
+    return request({
+      url: BASE_MEDIA_PAGE_API + '/singerList',
+      method: 'get'
+    })
   }
 }

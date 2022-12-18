@@ -44,7 +44,7 @@ const route = createRouter({
                     component: () => import('@/components/singerlist/index/singerlist')
                 },
                 {
-                    path: 'singer',
+                    path: 'singer/:id',
                     component: () => import('@/components/singer/index/singer')
                 },
                 {

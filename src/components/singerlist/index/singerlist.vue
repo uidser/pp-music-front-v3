@@ -77,190 +77,22 @@
         </div>
       </div>
     </div>
-    <div class="options-box">
-      <div class="option-line">
-        <div :class="optionNum === 0? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 0? 'option-span-checked': 'option-span'">全部</span>
+    <div class="options-box" v-if="showOptions">
+      <div class="option-line" v-for="(category, index1) in categoryList" :key="category.id" >
+        <div :class="optionNum[index1][0] === 0? 'option-box-checked': 'option-box'" @click="check(index1, null, category.id)">
+          <span :class="optionNum[index1][0] === 0? 'option-span-checked': 'option-span'">全部</span>
         </div>
-        <div :class="optionNum === 1? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 1? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 2? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 3? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 4? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 4? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 5? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 5? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-      </div>
-      <div class="option-line">
-        <div :class="optionNum === 0? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 0? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 1? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 1? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 2? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 3? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 4? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 4? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 5? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 5? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-      </div>
-      <div class="option-line">
-        <div :class="optionNum === 0? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 0? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 1? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 1? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 2? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 3? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 4? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 4? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 5? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 5? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 5? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 5? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 5? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 5? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 5? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 5? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 5? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 5? 'option-span-checked': 'option-span'">全部</span>
-        </div>
-        <div :class="optionNum === 5? 'option-box-checked': 'option-box'">
-          <span :class="optionNum === 5? 'option-span-checked': 'option-span'">全部</span>
+        <div :class="optionNum[index1][index2 + 1] === categoryItem.id? 'option-box-checked': 'option-box'" v-for="(categoryItem, index2) in category.categoryChildrenList" :key="categoryItem.id" @click="check(index1, index2 + 1, categoryItem.id)">
+          <span :class="optionNum[index1][index2 + 1] === categoryItem.id? 'option-span-checked': 'option-span'">{{ categoryItem.name }}</span>
         </div>
       </div>
     </div>
     <div id="singer-list-box">
-      <div class="singer-item" @click="toSinger">
+      <div class="singer-item" @click="jump('/singer/' + singer.id)" v-for="singer in singerList" :key="singer.id">
         <div class="singer-item-profile-picture-box">
-          <img src="/img/manleng-album.png" width="60">
+          <img :src="singer.profilePicture" width="60">
         </div>
-        <span class="singer-item-name-span">梁静茹</span>
-        <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
-          <span class="singer-item-follow-span">关注</span>
-        </div>
-      </div>
-      <div class="singer-item" @click="toSinger">
-        <div class="singer-item-profile-picture-box">
-          <img src="/img/manleng-album.png" width="60">
-        </div>
-        <span class="singer-item-name-span">梁静茹</span>
-        <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
-          <span class="singer-item-follow-span">关注</span>
-        </div>
-      </div>
-      <div class="singer-item" @click="toSinger">
-        <div class="singer-item-profile-picture-box">
-          <img src="/img/manleng-album.png" width="60">
-        </div>
-        <span class="singer-item-name-span">梁静茹</span>
-        <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
-          <span class="singer-item-follow-span">关注</span>
-        </div>
-      </div>
-      <div class="singer-item" @click="toSinger">
-        <div class="singer-item-profile-picture-box">
-          <img src="/img/manleng-album.png" width="60">
-        </div>
-        <span class="singer-item-name-span">梁静茹</span>
-        <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
-          <span class="singer-item-follow-span">关注</span>
-        </div>
-      </div>
-      <div class="singer-item" @click="toSinger">
-        <div class="singer-item-profile-picture-box">
-          <img src="/img/manleng-album.png" width="60">
-        </div>
-        <span class="singer-item-name-span">梁静茹</span>
-        <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
-          <span class="singer-item-follow-span">关注</span>
-        </div>
-      </div>
-      <div class="singer-item" @click="toSinger">
-        <div class="singer-item-profile-picture-box">
-          <img src="/img/manleng-album.png" width="60">
-        </div>
-        <span class="singer-item-name-span">梁静茹</span>
-        <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
-          <span class="singer-item-follow-span">关注</span>
-        </div>
-      </div>
-      <div class="singer-item" @click="toSinger">
-        <div class="singer-item-profile-picture-box">
-          <img src="/img/manleng-album.png" width="60">
-        </div>
-        <span class="singer-item-name-span">梁静茹</span>
-        <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
-          <span class="singer-item-follow-span">关注</span>
-        </div>
-      </div>
-      <div class="singer-item" @click="toSinger">
-        <div class="singer-item-profile-picture-box">
-          <img src="/img/manleng-album.png" width="60">
-        </div>
-        <span class="singer-item-name-span">梁静茹</span>
-        <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
-          <span class="singer-item-follow-span">关注</span>
-        </div>
-      </div>
-      <div class="singer-item" @click="toSinger">
-        <div class="singer-item-profile-picture-box">
-          <img src="/img/manleng-album.png" width="60">
-        </div>
-        <span class="singer-item-name-span">梁静茹</span>
-        <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
-          <span class="singer-item-follow-span">关注</span>
-        </div>
-      </div>
-      <div class="singer-item" @click="toSinger">
-        <div class="singer-item-profile-picture-box">
-          <img src="/img/manleng-album.png" width="60">
-        </div>
-        <span class="singer-item-name-span">梁静茹</span>
-        <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
-          <span class="singer-item-follow-span">关注</span>
-        </div>
-      </div>
-      <div class="singer-item" @click="toSinger">
-        <div class="singer-item-profile-picture-box">
-          <img src="/img/manleng-album.png" width="60">
-        </div>
-        <span class="singer-item-name-span">梁静茹</span>
-        <div class="singer-item-follow-button">
-          <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
-          <span class="singer-item-follow-span">关注</span>
-        </div>
-      </div>
-      <div class="singer-item" @click="toSinger">
-        <div class="singer-item-profile-picture-box">
-          <img src="/img/manleng-album.png" width="60">
-        </div>
-        <span class="singer-item-name-span">梁静茹</span>
+        <span class="singer-item-name-span">{{ singer.name }}</span>
         <div class="singer-item-follow-button">
           <van-icon name="plus" color="#8f8f8f" size="0.6rem" class="singer-item-follow-icon"/>
           <span class="singer-item-follow-span">关注</span>
@@ -272,27 +104,72 @@
 </template>
 
 <script>
-import { ref } from "vue";
-import {useRouter} from "vue-router";
+import pageApi from "@/api/page/page";
+import {onMounted, ref} from "vue"
+import {useRouter} from "vue-router"
 export default {
   name: "singerlist",
   setup() {
-    let optionNum = ref(0)
+    let optionNum = ref([[]])
     let router = useRouter()
+    let singerList = ref([])
+    let categoryList = ref([])
+    let showOptions = ref(false)
     function back() {
       router.go(-1)
     }
-    function toSinger() {
-      router.push('/singer')
+    function jump(path) {
+      router.push(path)
     }
     const toSearch = () => {
       router.push('search')
     }
+    onMounted(() => {
+      page({ current: 1, limit: 10 })
+    })
+
+    function initArray() {
+      for (let i = 0; i < categoryList.value.length; i++) {
+        optionNum.value[i] = [categoryList.value.length]
+        for (let j = 0; j < categoryList.value[i].categoryChildrenList.length; j++) {
+          optionNum.value[i][j] = 0
+        }
+      }
+    }
+
+    const page = async () => {
+      await pageApi.singerList().then(
+        response => {
+          singerList.value = response.data.singerList
+          categoryList.value = response.data.categoryList
+          initArray()
+          showOptions.value = true
+        }
+      )
+    }
+    const check = (index1, index2, id) => {
+      if (index2) {
+        optionNum.value[index1][0] = -1
+        for (let i = 0; i < optionNum.value[index1].length; i++) {
+          optionNum.value[index1][i] = -1
+        }
+        optionNum.value[index1][index2] = id
+      } else {
+        for (let i = 0; i < optionNum.value[index1].length; i++) {
+          optionNum.value[index1][i] = 0
+        }
+        optionNum.value[index1][0] = 0
+      }
+    }
     return {
       optionNum,
+      singerList,
+      categoryList,
+      showOptions,
+      check,
       toSearch,
       back,
-      toSinger
+      jump
     }
   }
 }

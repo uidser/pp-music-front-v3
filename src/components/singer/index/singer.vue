@@ -3,15 +3,15 @@
     <div class="top-text-button">
       <van-icon name="arrow-left" size="1.5rem" class="top-text-button-icon-left-white" @click="back"/>
       <van-icon name="arrow-left" size="1.5rem" class="top-text-button-icon-left-black" @click="back"/>
-      <span class="top-text-singer-name">梁静茹</span>
+      <span class="top-text-singer-name">{{ singer.name }}</span>
     </div>
     <div id="singer-profile-picture-box">
-      <img src="/img/manleng-album.png" id="singer-profile-picture"/>
+      <img :src="singer.profilePicture" id="singer-profile-picture"/>
     </div>
     <div id="singer-detail-and-song">
       <div id="singer-name">
         <div id="top-singer-name-and-follow-button">
-          <span id="singer-name-span">梁静茹</span>
+          <span id="singer-name-span">{{ singer.name }}</span>
           <div id="follow-button">
             <span id="follow-span">+ 关注</span>
           </div>
@@ -22,7 +22,7 @@
           </div>
           <span id="certification-span-top">入驻艺人</span>
         </div>
-        <span id="fans-quantity">0关注&nbsp;&nbsp;100.0万粉丝</span>
+        <span id="fans-quantity">0 关注&nbsp;&nbsp;{{ singer.fansQuantity }} 粉丝</span>
         <div id="singer-name-other-button">
           <div class="singer-name-other-button-item">
             <van-icon name="smile-o" size="1rem" color="#8f8f8f" class="singer-name-other-button-icon"/>
@@ -41,12 +41,12 @@
           <a href="javascript:void(0)" :class="navNum === 2? 'nav-a-checked-center': 'nav-a-center'" @click="changeNavNum(2)">专辑</a>
           <a href="javascript:void(0)" :class="navNum === 3? 'nav-a-checked-right': 'nav-a-right'" @click="changeNavNum(3)">视频</a>
         </div>
-        <div id="song-list-and-search-box" v-show="navNum === 1">
+        <div id="song-list-and-search-box" v-if="navNum === 1">
           <div id="search-box">
             <van-search shape="round" placeholder="搜索此音乐人演唱的歌曲" style="width: 95%; margin: 0 auto;"/>
           </div>
           <div id="play-and-sort-button">
-            <div id="play-and-sort-button-left">
+            <div id="play-and-sort-button-left" @click="playAll">
               <van-icon name="play-circle"  size="1.7rem" color="#8f8f8f"/>
               <span id="play-all-span">全部播放</span>
             </div>
@@ -56,209 +56,46 @@
             </div>
           </div>
           <div id="song-list">
-            <div class="song-item">
-              <span class="song-item-name">慢冷</span>
+            <div class="song-item" v-for="song in singer.songList" :key="song.id" @click="checkSong(song)">
+              <div class="song-info">
+                <span :class="store.state.currentSong.id === song.id?'song-item-name-check': 'song-item-name'">{{ song.name }}</span>
+                <span :class="store.state.currentSong.id === song.id?'song-item-singer-name-check': 'song-item-singer-name'">{{ song.author }} - {{ song.album }}</span>
+              </div>
               <div class="song-item-right">
                 <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
                 <van-icon name="ellipsis" size="1.5rem" color="#8f8f8f" style="margin-left: 10px"/>
               </div>
-              <span class="song-item-singer-name">梁静茹 - 我好吗？- 太阳如常升起</span>
-            </div>
-            <div class="song-item">
-              <span class="song-item-name">慢冷</span>
-              <div class="song-item-right">
-                <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
-                <van-icon name="ellipsis" size="1.5rem" color="#8f8f8f" style="margin-left: 10px"/>
-              </div>
-              <span class="song-item-singer-name">梁静茹 - 我好吗？- 太阳如常升起</span>
-            </div>
-            <div class="song-item">
-              <span class="song-item-name">慢冷</span>
-              <div class="song-item-right">
-                <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
-                <van-icon name="ellipsis" size="1.5rem" color="#8f8f8f" style="margin-left: 10px"/>
-              </div>
-              <span class="song-item-singer-name">梁静茹 - 我好吗？- 太阳如常升起</span>
-            </div>
-            <div class="song-item">
-              <span class="song-item-name">慢冷</span>
-              <div class="song-item-right">
-                <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
-                <van-icon name="ellipsis" size="1.5rem" color="#8f8f8f" style="margin-left: 10px"/>
-              </div>
-              <span class="song-item-singer-name">梁静茹 - 我好吗？- 太阳如常升起</span>
-            </div>
-            <div class="song-item">
-              <span class="song-item-name">慢冷</span>
-              <div class="song-item-right">
-                <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
-                <van-icon name="ellipsis" size="1.5rem" color="#8f8f8f" style="margin-left: 10px"/>
-              </div>
-              <span class="song-item-singer-name">梁静茹 - 我好吗？- 太阳如常升起</span>
-            </div>
-            <div class="song-item">
-              <span class="song-item-name">慢冷</span>
-              <div class="song-item-right">
-                <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
-                <van-icon name="ellipsis" size="1.5rem" color="#8f8f8f" style="margin-left: 10px"/>
-              </div>
-              <span class="song-item-singer-name">梁静茹 - 我好吗？- 太阳如常升起</span>
-            </div>
-            <div class="song-item">
-              <span class="song-item-name">慢冷</span>
-              <div class="song-item-right">
-                <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
-                <van-icon name="ellipsis" size="1.5rem" color="#8f8f8f" style="margin-left: 10px"/>
-              </div>
-              <span class="song-item-singer-name">梁静茹 - 我好吗？- 太阳如常升起</span>
-            </div>
-            <div class="song-item">
-              <span class="song-item-name">慢冷</span>
-              <div class="song-item-right">
-                <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
-                <van-icon name="ellipsis" size="1.5rem" color="#8f8f8f" style="margin-left: 10px"/>
-              </div>
-              <span class="song-item-singer-name">梁静茹 - 我好吗？- 太阳如常升起</span>
-            </div>
-            <div class="song-item">
-              <span class="song-item-name">慢冷</span>
-              <div class="song-item-right">
-                <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
-                <van-icon name="ellipsis" size="1.5rem" color="#8f8f8f" style="margin-left: 10px"/>
-              </div>
-              <span class="song-item-singer-name">梁静茹 - 我好吗？- 太阳如常升起</span>
-            </div>
-            <div class="song-item">
-              <span class="song-item-name">慢冷</span>
-              <div class="song-item-right">
-                <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
-                <van-icon name="ellipsis" size="1.5rem" color="#8f8f8f" style="margin-left: 10px"/>
-              </div>
-              <span class="song-item-singer-name">梁静茹 - 我好吗？- 太阳如常升起</span>
-            </div>
-            <div class="song-item">
-              <span class="song-item-name">慢冷</span>
-              <div class="song-item-right">
-                <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
-                <van-icon name="ellipsis" size="1.5rem" color="#8f8f8f" style="margin-left: 10px"/>
-              </div>
-              <span class="song-item-singer-name">梁静茹 - 我好吗？- 太阳如常升起</span>
             </div>
           </div>
         </div>
-        <div id="pedia-box" v-show="navNum === 0">
+        <div id="pedia-box" v-if="navNum === 0">
           <div id="singer-introduction">
             <div id="introduction-span-and-more-button">
               <span id="introduction-span">简介</span>
               <span id="more-span">更多 ></span>
             </div>
-            <span id="certification-span">认证信息：歌手梁静茹</span>
-            <span id="introduction-content">梁静茹（Fish Leong），1978年6月16日出生于马来西亚。华语流行女歌手。
-1997年，梁静茹被李宗盛发掘，并独自到台湾发展。1999年发行首张专辑《一夜长大》后出道。2000年凭借《勇气》一曲成名，之后的《可惜不是你》《暖暖》则进一步基本奠定了她疗伤、温暖情歌的路线。2003年，梁静茹凭借《Sunrise,我喜欢》获得HITO流行音乐奖-2002年度HITO海外歌手奖。2005年又凭借《燕尾蝶》获得2004年度MusicRadio中国TOP排行榜-港台最佳女歌手。2008年获得第十届马来西亚娱协奖-传媒推荐大奖。2010年与相识多年的男友赵元同步入婚姻殿堂。最新专辑《爱久见人心》已于2012年8月10日发行。2013年10月16日，梁静茹传出怀孕喜讯。2014年4月18日，梁静茹诞下儿子，取名Anderson。2014年12月复出发行首支单曲《在爱里等你》 ；2015年3月起举办《你的名字是爱情》巡回演唱会 。2016年发行单曲《不翼而飞》。2019年，推出第13张个人音乐专辑《我好吗？－太阳如常升起》。2021年发行单曲《再见，少年》。</span>
+            <span id="certification-span">认证信息：{{ singer.name }}</span>
+            <span id="introduction-content">{{ singer.detail }}</span>
           </div>
           <div id="split-box"></div>
           <div id="feature-box">
             <div id="feature-title">
               <span id="feature-span"><strong>精选歌曲</strong></span>
-              <div id="play-button">
+              <div id="play-button" @click="playRecommendSong">
                 <van-icon name="play" size="1rem" color="#FFF" id="play-icon"/>
                 <span id="play-span">播放</span>
               </div>
               <span id="feature-more-span">更多 ></span>
             </div>
             <div id="feature-song-list">
-              <div class="three-feature-box">
-                <div class="feature-song-item">
+              <div class="three-feature-box" v-for="(songThree, index) in recommendSongList" :key="index">
+                <div class="feature-song-item" v-for="song in songThree" :key="song.id" @click="checkSong(song)">
                   <div class="song-profile-picture-box">
-                    <img src="/img/manleng-album.png" width="60" />
+                    <img :src="song.mediaProfilePictureImg" width="60" />
                   </div>
                   <div class="feature-song-name-and-album-name-box">
-                    <span class="feature-song-name">慢冷</span>
-                    <span class="feature-song-name-and-album-name">梁静茹 - 梁静茹 - 我好吗？- 太阳如常升起</span>
-                  </div>
-                  <van-icon name="video" color="#8f8f8f" size="1.5rem" class="feature-song-mv-button"/>
-                </div>
-                <div class="feature-song-item">
-                  <div class="song-profile-picture-box">
-                    <img src="/img/manleng-album.png" width="60" />
-                  </div>
-                  <div class="feature-song-name-and-album-name-box">
-                    <span class="feature-song-name">慢冷</span>
-                    <span class="feature-song-name-and-album-name">梁静茹 - 梁静茹 - 我好吗？- 太阳如常升起</span>
-                  </div>
-                  <van-icon name="video" color="#8f8f8f" size="1.5rem" class="feature-song-mv-button"/>
-                </div>
-                <div class="feature-song-item">
-                  <div class="song-profile-picture-box">
-                    <img src="/img/manleng-album.png" width="60" />
-                  </div>
-                  <div class="feature-song-name-and-album-name-box">
-                    <span class="feature-song-name">慢冷</span>
-                    <span class="feature-song-name-and-album-name">梁静茹 - 梁静茹 - 我好吗？- 太阳如常升起</span>
-                  </div>
-                  <van-icon name="video" color="#8f8f8f" size="1.5rem" class="feature-song-mv-button"/>
-                </div>
-              </div>
-              <div class="three-feature-box">
-                <div class="feature-song-item">
-                  <div class="song-profile-picture-box">
-                    <img src="/img/manleng-album.png" width="60" />
-                  </div>
-                  <div class="feature-song-name-and-album-name-box">
-                    <span class="feature-song-name">慢冷</span>
-                    <span class="feature-song-name-and-album-name">梁静茹 - 梁静茹 - 我好吗？- 太阳如常升起</span>
-                  </div>
-                  <van-icon name="video" color="#8f8f8f" size="1.5rem" class="feature-song-mv-button"/>
-                </div>
-                <div class="feature-song-item">
-                  <div class="song-profile-picture-box">
-                    <img src="/img/manleng-album.png" width="60" />
-                  </div>
-                  <div class="feature-song-name-and-album-name-box">
-                    <span class="feature-song-name">慢冷</span>
-                    <span class="feature-song-name-and-album-name">梁静茹 - 梁静茹 - 我好吗？- 太阳如常升起</span>
-                  </div>
-                  <van-icon name="video" color="#8f8f8f" size="1.5rem" class="feature-song-mv-button"/>
-                </div>
-                <div class="feature-song-item">
-                  <div class="song-profile-picture-box">
-                    <img src="/img/manleng-album.png" width="60" />
-                  </div>
-                  <div class="feature-song-name-and-album-name-box">
-                    <span class="feature-song-name">慢冷</span>
-                    <span class="feature-song-name-and-album-name">梁静茹 - 梁静茹 - 我好吗？- 太阳如常升起</span>
-                  </div>
-                  <van-icon name="video" color="#8f8f8f" size="1.5rem" class="feature-song-mv-button"/>
-                </div>
-              </div>
-              <div class="three-feature-box">
-                <div class="feature-song-item">
-                  <div class="song-profile-picture-box">
-                    <img src="/img/manleng-album.png" width="60" />
-                  </div>
-                  <div class="feature-song-name-and-album-name-box">
-                    <span class="feature-song-name">慢冷</span>
-                    <span class="feature-song-name-and-album-name">梁静茹 - 梁静茹 - 我好吗？- 太阳如常升起</span>
-                  </div>
-                  <van-icon name="video" color="#8f8f8f" size="1.5rem" class="feature-song-mv-button"/>
-                </div>
-                <div class="feature-song-item">
-                  <div class="song-profile-picture-box">
-                    <img src="/img/manleng-album.png" width="60" />
-                  </div>
-                  <div class="feature-song-name-and-album-name-box">
-                    <span class="feature-song-name">慢冷</span>
-                    <span class="feature-song-name-and-album-name">梁静茹 - 梁静茹 - 我好吗？- 太阳如常升起</span>
-                  </div>
-                  <van-icon name="video" color="#8f8f8f" size="1.5rem" class="feature-song-mv-button"/>
-                </div>
-                <div class="feature-song-item">
-                  <div class="song-profile-picture-box">
-                    <img src="/img/manleng-album.png" width="60" />
-                  </div>
-                  <div class="feature-song-name-and-album-name-box">
-                    <span class="feature-song-name">慢冷</span>
-                    <span class="feature-song-name-and-album-name">梁静茹 - 梁静茹 - 我好吗？- 太阳如常升起</span>
+                    <span :class="store.state.currentSong.id === song.id?'feature-song-name-check': 'feature-song-name'">{{ song.name }}</span>
+                    <span :class="store.state.currentSong.id === song.id?'feature-song-name-and-album-name-check': 'feature-song-name-and-album-name'">{{ song.author + ' - ' + song.album }}</span>
                   </div>
                   <van-icon name="video" color="#8f8f8f" size="1.5rem" class="feature-song-mv-button"/>
                 </div>
@@ -362,7 +199,7 @@
           </div>
           <div id="split-box"></div>
         </div>
-        <div v-show="navNum === 2" id="album-box">
+        <div v-if="navNum === 2" id="album-box">
           <div id="album-box-top-button">
             <span id="option-span">筛选</span>
             <van-icon name="descending" size="1rem" color="#8f8f8f"/>
@@ -491,7 +328,7 @@
             </div>
           </div>
         </div>
-        <div id="singer-video-box" v-show="navNum === 3">
+        <div id="singer-video-box" v-if="navNum === 3">
           <div id="singer-video-top-span-and-button">
             <div id="video-play-and-sort-button">
               <div id="play-and-sort-button-left">
@@ -643,8 +480,11 @@
 </template>
 
 <script>
-import {onMounted, ref} from "vue";
-import {useRouter} from "vue-router";
+import singerApi from "@/api/singer/singer"
+import {onMounted, ref} from "vue"
+import {useRouter} from "vue-router"
+import {useStore} from "vuex";
+import pubSub from "pubsub-js";
 export default {
   name: "singer",
   setup() {
@@ -654,6 +494,9 @@ export default {
     let singerNameBoxOpacity = ref(1)
     let topButtonBlackColor = ref()
     let topButtonWhiteColor = ref()
+    let singer = ref({})
+    let store = useStore()
+    let recommendSongList = ref([[]])
     function back() {
       router.go(-1)
     }
@@ -665,6 +508,8 @@ export default {
       window.addEventListener('scroll', showNavText)
       let scrollTop = window.pageYOffset
       computeColor(scrollTop)
+      let route = router.currentRoute.value
+      getSinger(route.params.id)
     })
 
     function computeColor(scrollTop) {
@@ -679,6 +524,48 @@ export default {
       let scrollTop = window.pageYOffset
       computeColor(scrollTop)
     }
+    const getSinger = (id) => {
+      singerApi.get(id).then(
+        response => {
+          singer.value = response.data
+          let count = response.data.songList.length / 3
+          for (let i = 1; i < count; i++) {
+            recommendSongList.value[i - 1] = []
+            recommendSongList.value[i - 1][0] = response.data.songList[i * 3 - 3]
+            recommendSongList.value[i - 1][1] = response.data.songList[i * 3 - 2]
+            recommendSongList.value[i - 1][2] = response.data.songList[i * 3 - 1]
+          }
+        }
+      )
+    }
+    const playAll = () => {
+      store.commit('changeSongList', singer.value.songList)
+      store.commit('changeCurrentSingerName', singer.value.songList[0].name + ' - ' + singer.value.songList[0].author)
+      pubSub.publish('changeCurrentSongSrcPubSub', singer.value.songList[0])
+      pubSub.publish('computeDuration', true)
+      pubSub.publish('playOrStop', true)
+    }
+    const checkSong = (song) => {
+      pubSub.publish('playOrStop', false)
+      store.commit('changeCurrentSingerName', song.name + ' - ' + song.author)
+      store.commit('CHANGE_CURRENT_SONG', song)
+      pubSub.publish('changeCurrentSongSrcPubSub', song)
+      store.getters.currentMainColor
+    }
+    const playRecommendSong = async () => {
+      let array = []
+      for (let i = 0; i < recommendSongList.value.length; i++) {
+        for (let j = 0; j < recommendSongList.value[i].length; j++) {
+          array.push(recommendSongList.value[i][j])
+        }
+      }
+      store.commit('changeSongList', array)
+      pubSub.publish('playOrStop', false)
+      pubSub.publish('changeCurrentSongSrcPubSub', array[0])
+      store.commit('changeCurrentSingerName', array[0].name + ' - ' + array[0].author)
+      store.commit('CHANGE_CURRENT_SONG', array[0])
+      store.getters.currentMainColor
+    }
     return {
       router,
       navNum,
@@ -686,6 +573,12 @@ export default {
       singerNameBoxOpacity,
       topBackgroundColor,
       topButtonBlackColor,
+      singer,
+      store,
+      recommendSongList,
+      playRecommendSong,
+      checkSong,
+      playAll,
       changeNavNum,
       back,
       showNavText,
@@ -734,13 +627,13 @@ export default {
   }
   #singer-name{
     background-color: #FFF;
-    height: 140px;
-    width: 90%;
+    display: inline-block;
+    width: 90vw;
     border-radius: 15px;
     box-shadow: 0px 17px 22px -13px rgba(0,0,0,0.1);
-    margin: 0 auto;
     position: relative;
     top: -90px;
+    margin-left: 5vw;
   }
   #follow-span{
     font-size: 14px;
@@ -776,11 +669,11 @@ export default {
   #nav{
     width: 88%;
     margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
   }
   .nav-a-checked-center, .nav-a-center, .nav-a-checked-left, .nav-a-left, .nav-a-checked-right, .nav-a-right{
     text-decoration: none;
-    position: relative;
-    top: -70px;
   }
   .nav-a-center, .nav-a-left, .nav-a-right{
     color: #8f8f8f;
@@ -795,15 +688,15 @@ export default {
     float: right;
   }
   .nav-a-checked-center, .nav-a-center{
-    margin-left: 21%;
+    /*margin-left: 21%;*/
   }
   #search-box{
-    position: relative;
-    top: -70px;
+    /*position: relative;*/
+    /*top: -70px;*/
   }
   #play-and-sort-button{
-    position: relative;
-    top: -70px;
+    /*position: relative;*/
+    /*top: -70px;*/
     height: 27px;
     width: 90%;
     margin: 0 auto;
@@ -830,28 +723,47 @@ export default {
   #song-list{
     width: 88%;
     margin: 0 auto;
-    position: relative;
-    top: -70px;
+    /*position: relative;*/
+    /*top: -70px;*/
   }
   .song-item-name{
     display: block;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   .song-item-right{
-    float: right;
-    height: 50px;
-    position: relative;
-    top: -7px;
+    display: flex;
+    align-items: center;
+    align-content: space-between;
   }
   .song-item-singer-name{
-    float: left;
     font-size: 12px;
     color: #8f8f8f;
     display: block;
-    margin: 3px auto;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .song-item-singer-name-check{
+    font-size: 12px;
+    display: block;
+    color: #ff0039;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   .song-item{
+    width: 100%;
     height: 50px;
     margin: 10px 0;
+    display: flex;
+    align-content: space-between;
+    align-items: center;
+    justify-content: space-between;
   }
   .top-text-singer-name{
     color: #8f8f8f;
@@ -885,8 +797,9 @@ export default {
     margin-bottom: 5px;
   }
   #pedia-box{
-    position: relative;
-    top: -50px;
+/*    position: relative;
+    top: -50px;*/
+    width: 100vw
   }
   #certification-span{
     font-size: 12px;
@@ -898,7 +811,6 @@ export default {
     display: -webkit-box;
     line-height: 20px;
     width: 100%;
-    height: 60px;
     font-size: 12px;
     color: #8f8f8f;
     text-overflow: ellipsis;
@@ -959,38 +871,67 @@ export default {
     float: left;
   }
   #feature-song-list{
-    width: 94%;
+    width: 100%;
     margin: 0 auto;
     white-space: nowrap;
     overflow-y: auto;
-    margin-left: 6%;
   }
   #feature-song-list::-webkit-scrollbar{
     display: none;
   }
   .feature-song-item{
     height: 60px;
-    width: 94%;
+    width: 95%;
     margin: 10px 0;
-    display: inline-block;
+    margin-left: 6%;
+    display: flex;
+    align-content: space-between;
+    align-items: center;
+    justify-content: space-between;
   }
   .feature-song-name{
     display: block;
+    width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .feature-song-name-check{
+    display: block;
+    color: #ff0039;
+    width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .feature-song-name-and-album-name{
+    display: block;
     color: #8f8f8f;
     font-size: 12px;
-    width: 100%;
+    width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .feature-song-name-and-album-name-check{
+    display: block;
+    color: #ff0039;
+    font-size: 12px;
+    width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .feature-song-name-and-album-name-box{
-    margin-left: 70px;
-    position: relative;
-    top: 10px;
+    height: 60%;
+    width: 69%;
+    display: flex;
+    align-items: center;
+    align-content: space-between;
+    flex-wrap: wrap;
   }
   .feature-song-mv-button{
-    float: right;
     position: relative;
-    bottom: 18px;
     right: 5px;
   }
   .feature-video-video-item{
@@ -1023,11 +964,10 @@ export default {
     top: 91%;
   }
   .feature-video-list-box{
-    width: 94%;
+    width: 100%;
     margin: 10px auto;
     white-space: nowrap;
     overflow-y: auto;
-    margin-left: 6%;
   }
   .feature-video-list-box::-webkit-scrollbar{
     display: none;
@@ -1040,6 +980,12 @@ export default {
   .feature-video-item{
     display: inline-block;
     margin-right: 8px;
+  }
+  .feature-video-item:first-child{
+    margin-left: 6%;
+  }
+  .feature-video-item:last-child{
+    margin-right: 6%;
   }
   .achievement-profile-picture{
     width: 50px;
@@ -1055,24 +1001,22 @@ export default {
   .achievement-title{
     font-size: 14px;
     display: block;
-    line-height: 19px;
   }
   .achievement-detail{
     color: #8f8f8f;
     font-size: 12px;
-    display: inline-block;
-    line-height: 19px;
+    display: block;
   }
   .achievement-item{
     height: 50px;
     margin: 15px auto;
+    display: flex;
+    align-items: center;
+    align-content: space-between;
   }
   .achievement-title-and-detail{
-    height: 38px;
-    margin-left: 10px;
-    position: relative;
-    top: 6px;
-    left: 10px;
+    display: inline;
+    margin-left: 2vw;
   }
   #certified-info{
     display: flex;
@@ -1127,14 +1071,15 @@ export default {
     margin-top: 7px;
   }
   #album-box{
-    position: relative;
-    top: -50px;
+    /*position: relative;*/
+    /*top: -50px;*/
     width: 88%;
     margin: 0 auto;
   }
   #album-box-top-button{
     display: flex;
     align-items: center;
+    width: 100vw;
   }
   #option-span{
     font-size: 14px;
@@ -1230,5 +1175,39 @@ export default {
     height: 27px;
     width: 88%;
     margin: 0 auto;
+  }
+  #singer-detail-and-song{
+    display: inline-block;
+    width: 100vw;
+  }
+  #song-list-and-search-box{
+  }
+  .song-item-name-check{
+    display: block;
+    color: #ff0039;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .three-feature-box{
+    display: inline-block;
+    width: 90%;
+  }
+  .three-feature-box:last-child{
+    margin-right: 6%;
+  }
+  #nav-and-other-list{
+    display: inline-block;
+    margin-top: -80px;
+    width: 100vw;
+  }
+  .song-info{
+    width: 80%;
+    height: 78%;
+    display: flex;
+    align-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
   }
 </style>

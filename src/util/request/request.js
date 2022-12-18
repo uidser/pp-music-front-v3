@@ -21,6 +21,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     const res = response.data
+    console.log(res)
     if (res.code === 403) {
       Toast('请登录')
       return Promise.reject(new Error('请登录'))
@@ -31,6 +32,16 @@ service.interceptors.response.use(
     } else {
       return res
     }
+  },
+  error => {
+    const code = error.response.status;
+    if (code === 403) {
+      Toast('错误：无权访问或登录过期')
+      if (window.location.href.substring(window.location.href.lastIndexOf('/'), window.location.href.length) !== '/login') {
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(error)
   }
 )
 

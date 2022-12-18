@@ -34,7 +34,7 @@
     </div>
     <van-action-sheet v-model:show="show" @select="onSelect" cancel-text="关闭" style="z-index: 10101010" description="播放列表">
       <div v-for="song in store.getters.songList" :key="song.id" class="song-list" @click="changeCurrentSong(song)">
-        <span :class="song.color?'song-list-span-check': 'song-list-span'">{{ song.author + ' - ' + song.name }}</span>
+        <span :class="song.color?'song-list-span-check': 'song-list-span'">{{ song.name + ' - ' + song.author }}</span>
       </div>
     </van-action-sheet>
   </div>
@@ -133,7 +133,7 @@ export default {
         duration()
       })
       changeCurrenTimeAndProgressTage = pubSub.subscribe('changeCurrenTimeAndProgressTage', (name, msg) => {
-        var strings = msg.toString().split(':');
+        var strings = msg.toString().split(':')
         audio.value.currentTime = strings[0]
         progressTage.value = strings[1]
         store.commit('changeCurrentTime', strings[0])
@@ -358,7 +358,7 @@ export default {
     border-radius: 2px;
   }
   #audio-player{
-    width: 100%;
+    width: 100vw;
     height: 50px;
     display: flex;
     justify-items: center;
@@ -368,7 +368,7 @@ export default {
     z-index: 10000;
   }
   #all-div{
-    height: 100%;
+    height: 100vw;
     position: relative;
   }
   #bottom-nav{
