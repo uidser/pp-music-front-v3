@@ -38,7 +38,7 @@
       </div>
     </div>
     <van-list v-model:loading="loading" :finished="finished" finished-text="没有更多了" @load="onLoad" v-show="showSearchResult" id="song-list">
-      <song v-for="song in songList" :key="song.id" :name="song.name" :author="song.author" :show-step="false"/>
+      <song v-for="song in songList" :key="song.id" :name="song.name" :author="song.author" :show-step="false" :show-html="true" @click="playSong(song)"/>
     </van-list>
     <div style="height: 60px"></div>
   </div>
@@ -52,6 +52,7 @@ import Rankitem from "@/components/publiccomponent/rankItem/rankitem"
 import {Toast} from "vant"
 import searchApi from "@/api/search/search"
 import Song from "@/components/publiccomponent/song/song";
+import pubSub from "pubsub-js";
 export default {
   name: "search",
   components: {Song, Rankitem},
@@ -116,11 +117,18 @@ export default {
         search()
       }
     }
+    const playSong = (song) => {
+      pubSub.publish('changeCurrentSongSrcPubSub', song)
+      store.commit('CHANGE_SEARCH_HISTORY', mainKeyword.value)
+      store.commit('RESET_CURRENT_MAIN_COLOR')
+      router.push('/play')
+    }
     return {
       back,
       search,
       deleteHistory,
       selectKeyword,
+      playSong,
       songList,
       showSearchResult,
       showLoading,

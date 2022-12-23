@@ -41,7 +41,7 @@
           <a href="javascript:void(0)" :class="navNum === 2? 'nav-a-checked-center': 'nav-a-center'" @click="changeNavNum(2)">专辑</a>
           <a href="javascript:void(0)" :class="navNum === 3? 'nav-a-checked-right': 'nav-a-right'" @click="changeNavNum(3)">视频</a>
         </div>
-        <div id="song-list-and-search-box" v-if="navNum === 1">
+        <div id="song-list-and-search-box" v-show="navNum === 1">
           <div id="search-box">
             <van-search shape="round" placeholder="搜索此音乐人演唱的歌曲" style="width: 95%; margin: 0 auto;"/>
           </div>
@@ -68,7 +68,7 @@
             </div>
           </div>
         </div>
-        <div id="pedia-box" v-if="navNum === 0">
+        <div id="pedia-box" v-show="navNum === 0">
           <div id="singer-introduction">
             <div id="introduction-span-and-more-button">
               <span id="introduction-span">简介</span>
@@ -197,9 +197,8 @@
               </div>
             </div>
           </div>
-          <div id="split-box"></div>
         </div>
-        <div v-if="navNum === 2" id="album-box">
+        <div v-show="navNum === 2" id="album-box">
           <div id="album-box-top-button">
             <span id="option-span">筛选</span>
             <van-icon name="descending" size="1rem" color="#8f8f8f"/>
@@ -328,7 +327,7 @@
             </div>
           </div>
         </div>
-        <div id="singer-video-box" v-if="navNum === 3">
+        <div id="singer-video-box" v-show="navNum === 3">
           <div id="singer-video-top-span-and-button">
             <div id="video-play-and-sort-button">
               <div id="play-and-sort-button-left">
@@ -474,6 +473,7 @@
             </div>
           </div>
         </div>
+        <div style="height: 50px;"></div>
       </div>
     </div>
   </div>
@@ -544,6 +544,7 @@ export default {
       pubSub.publish('changeCurrentSongSrcPubSub', singer.value.songList[0])
       pubSub.publish('computeDuration', true)
       pubSub.publish('playOrStop', true)
+      store.commit('RESET_CURRENT_MAIN_COLOR')
     }
     const checkSong = (song) => {
       pubSub.publish('playOrStop', false)
@@ -665,6 +666,7 @@ export default {
     font-size: 12px;
     color: #8f8f8f;
     margin-left: 20px;
+    display: block;
   }
   #nav{
     width: 88%;
@@ -741,7 +743,7 @@ export default {
   .song-item-singer-name{
     font-size: 12px;
     color: #8f8f8f;
-    display: block;
+    display: inline-block;
     width: 100%;
     overflow: hidden;
     white-space: nowrap;
@@ -759,7 +761,7 @@ export default {
   .song-item{
     width: 100%;
     height: 50px;
-    margin: 10px 0;
+    margin: 2px 0;
     display: flex;
     align-content: space-between;
     align-items: center;
@@ -784,6 +786,7 @@ export default {
   #singer-introduction{
     width: 88%;
     margin: 0 auto;
+    margin-top: 10px;
   }
   #more-span{
     font-size: 12px;
@@ -1080,6 +1083,7 @@ export default {
     display: flex;
     align-items: center;
     width: 90%;
+    margin-top: 5px;
   }
   #option-span{
     font-size: 14px;
@@ -1161,8 +1165,7 @@ export default {
   #singer-video-list{
     width: 90%;
     margin: 0 auto;
-    position: relative;
-    top: -50px;
+    display: block;
   }
   .singer-video-item-box{
     float: left;
@@ -1170,11 +1173,10 @@ export default {
     margin: 0 1%;
   }
   #video-play-and-sort-button{
-    position: relative;
-    top: -50px;
     height: 27px;
     width: 88%;
     margin: 0 auto;
+    margin-bottom: 5px;
   }
   #singer-detail-and-song{
     display: inline-block;
@@ -1204,10 +1206,18 @@ export default {
   }
   .song-info{
     width: 80%;
-    height: 78%;
+    height: 75%;
     display: flex;
     align-content: space-between;
     align-items: center;
     flex-wrap: wrap;
+  }
+  #singer-video-box{
+    display: inline-block;
+  }
+  #singer-name-other-button{
+    display: inline-block;
+    margin: 5px 0;
+    margin-left: 20px;
   }
 </style>

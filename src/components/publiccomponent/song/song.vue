@@ -13,8 +13,10 @@
       </div>
     </div>
     <div class="song-content-text">
-      <span :class="clazz === 0?'song-item-name': 'song-item-name-check'">{{ name }}</span>
-      <span :class="clazz === 0?'song-item-singer-name': 'song-item-singer-name-check'">{{ author + ' - ' + album }}</span>
+      <span :class="clazz === 0?'song-item-name': 'song-item-name-check'" v-if="showHtml" v-html="name"></span>
+      <span :class="clazz === 0?'song-item-name': 'song-item-name-check'" v-if="!showHtml">{{ name }}</span>
+      <span :class="clazz === 0?'song-item-singer-name': 'song-item-singer-name-check'" v-if="showHtml" v-html="author + album"></span>
+      <span :class="clazz === 0?'song-item-singer-name': 'song-item-singer-name-check'" v-if="!showHtml">{{ author + ' - ' + album }}</span>
     </div>
     <div class="song-item-right">
       <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
@@ -58,7 +60,12 @@ export default {
     clazz: {
       type: Number,
       default: 0,
-      require:true
+      require: true
+    },
+    showHtml: {
+      type: Boolean,
+      default: false,
+      require: true
     }
   },
   name: "song"

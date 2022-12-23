@@ -136,8 +136,6 @@ const index = createStore({
       }
     },
     RESET_AUTHOR_ANIMATION(state, ref) {
-      console.log(ref.ref1.clientWidth)
-      console.log(ref.ref2.clientWidth)
       if (ref.ref1.clientWidth > ref.ref2.clientWidth) {
         state.currentAuthorAnimation = true
       } else {

@@ -40,11 +40,12 @@
   </div>
 </template>
 <script>
-import {onMounted, ref, watch, onBeforeUnmount, onBeforeMount, nextTick} from "vue"
+import {onMounted, ref, watch, onBeforeUnmount, nextTick} from "vue"
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import pubSub from 'pubsub-js'
 import pageApi from "@/api/page/page";
+import {Toast} from "vant";
 export default {
   name: "index",
   setup() {
@@ -127,6 +128,9 @@ export default {
         progressTage.value = 0
         await store.commit('changeProgressTage', 0)
         await store.commit('changeCurrentTime', 0)
+        msg.name = msg.name.replace('<span style=\'color: #ff0039;\'>', '').replace('</span>', '')
+        msg.author = msg.name.replace('<span style=\'color: #ff0039;\'>', '').replace('</span>', '')
+        await store.commit('changeCurrentSingerName', msg.name + ' - ' + msg.author)
         let songInfo = { mediaUrl: msg.mediaUrl, mediaId: msg.id }
         localStorage.setItem('songInfo', JSON.stringify(songInfo))
         playerMusic()
@@ -224,7 +228,11 @@ export default {
         store.commit('changeCurrentTime', audio.value.currentTime)
         store.commit('changeProgressTage', progressTage.value)
         if(progressTage.value >= 100) {
-          stopMusic()
+          if (store.state.currentSong.id === store.getters.songList[store.getters.songList.length - 1].id) {
+            stopMusic()
+          } else {
+            nextSong()
+          }
         }
       }, 100)
     }
@@ -238,10 +246,14 @@ export default {
       router.push('/play')
     }
     function duration() {
-      let audio1 = new Audio(store.state.currentSong.mediaUrl)
-      audio1.addEventListener('loadedmetadata', () => {
-        store.commit('changeDuration', audio1.duration)
-        return audio1.duration
+      // let audio1 = new Audio(store.state.currentSong.mediaUrl)
+      // audio1.addEventListener('loadedmetadata', () => {
+      //   store.commit('changeDuration', audio1.duration)
+      //   return audio1.duration
+      // })
+      audio.value.addEventListener('loadedmetadata', () => {
+        store.commit('changeDuration', audio.value.duration)
+        return audio.value.duration
       })
     }
     function realStopMusic() {
@@ -250,6 +262,26 @@ export default {
     }
     const changeCurrentSong = (song) => {
       onSelect(song)
+    }
+    const nextSong = () => {
+      for (let i = 0; i < store.getters.songList.length; i++) {
+        if (store.state.currentSong.id === store.getters.songList[i].id) {
+          if(i < store.getters.songList.length - 1) {
+            store.commit('CHANGE_CURRENT_SONG', store.getters.songList[i + 1])
+            store.commit('RESET_CURRENT_MAIN_COLOR')
+            store.commit('changeCurrentSingerName', store.getters.songList[i + 1].name + ' - ' + store.getters.songList[i + 1].author)
+            stopMusic()
+            pubSub.publish('changeCurrentSongSrcPubSub', store.getters.songList[i + 1])
+            playerMusic()
+            break
+          } else {
+            Toast('已经是最后一首了')
+            if (store.getters.progressTage >= 100) {
+              stopMusic()
+            }
+          }
+        }
+      }
     }
     return {
       isPlayer,

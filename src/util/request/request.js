@@ -21,7 +21,6 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     const res = response.data
-    console.log(res)
     if (res.code === 403) {
       Toast('请登录')
       return Promise.reject(new Error('请登录'))

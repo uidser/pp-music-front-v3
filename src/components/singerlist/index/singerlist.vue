@@ -104,7 +104,8 @@
 </template>
 
 <script>
-import pageApi from "@/api/page/page";
+import searchApi from '@/api/search/search'
+import pageApi from "@/api/page/page"
 import {onMounted, ref} from "vue"
 import {useRouter} from "vue-router"
 export default {
@@ -147,7 +148,7 @@ export default {
         }
       )
     }
-    const check = (index1, index2, id) => {
+    const check = async (index1, index2, id) => {
       if (index2) {
         optionNum.value[index1][0] = -1
         for (let i = 0; i < optionNum.value[index1].length; i++) {
@@ -160,6 +161,22 @@ export default {
         }
         optionNum.value[index1][0] = 0
       }
+      let array = [[]]
+      for (let i = 0; i < optionNum.value.length; i++) {
+        for (let j = 0; j < optionNum.value[i].length; j++) {
+          if(optionNum.value[i][j] !== 0 && optionNum.value[i][j] !== -1) {
+            array.push(optionNum.value[i][j])
+          }
+        }
+      }
+      querySingerByCategory(array)
+    }
+    const querySingerByCategory = (categoryIdList) => {
+      searchApi.querySingerByCategory(categoryIdList).then(
+        response => {
+          singerList.value = response.data
+        }
+      )
     }
     return {
       optionNum,

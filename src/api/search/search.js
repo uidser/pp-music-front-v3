@@ -9,5 +9,12 @@ export default {
       method: 'get',
       params: queryVo
     })
+  },
+  querySingerByCategory(categoryIdList) {
+    return request({
+      url: BASE_SEARCH_API + '/querySingerByCategory',
+      method: 'get',
+      params: categoryIdList
+    })
   }
 }
