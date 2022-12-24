@@ -129,7 +129,7 @@ export default {
         await store.commit('changeProgressTage', 0)
         await store.commit('changeCurrentTime', 0)
         msg.name = msg.name.replace('<span style=\'color: #ff0039;\'>', '').replace('</span>', '')
-        msg.author = msg.name.replace('<span style=\'color: #ff0039;\'>', '').replace('</span>', '')
+        msg.author = msg.author.replace('<span style=\'color: #ff0039;\'>', '').replace('</span>', '')
         await store.commit('changeCurrentSingerName', msg.name + ' - ' + msg.author)
         let songInfo = { mediaUrl: msg.mediaUrl, mediaId: msg.id }
         localStorage.setItem('songInfo', JSON.stringify(songInfo))

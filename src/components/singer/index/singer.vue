@@ -551,7 +551,7 @@ export default {
       store.commit('changeCurrentSingerName', song.name + ' - ' + song.author)
       store.commit('CHANGE_CURRENT_SONG', song)
       pubSub.publish('changeCurrentSongSrcPubSub', song)
-      store.getters.currentMainColor
+      store.commit('RESET_CURRENT_MAIN_COLOR')
     }
     const playRecommendSong = async () => {
       let array = []
@@ -565,7 +565,7 @@ export default {
       pubSub.publish('changeCurrentSongSrcPubSub', array[0])
       store.commit('changeCurrentSingerName', array[0].name + ' - ' + array[0].author)
       store.commit('CHANGE_CURRENT_SONG', array[0])
-      store.getters.currentMainColor
+      store.commit('RESET_CURRENT_MAIN_COLOR')
     }
     return {
       router,
@@ -1179,10 +1179,10 @@ export default {
     margin-bottom: 5px;
   }
   #singer-detail-and-song{
-    display: inline-block;
     width: 100vw;
   }
   #song-list-and-search-box{
+
   }
   .song-item-name-check{
     display: block;
