@@ -14,9 +14,9 @@
     </div>
     <div class="song-content-text">
       <span :class="clazz === 0?'song-item-name': 'song-item-name-check'" v-if="showHtml" v-html="name"></span>
-      <span :class="clazz === 0?'song-item-name': 'song-item-name-check'" v-if="!showHtml">{{ name }}</span>
+      <span :class="store.state.currentSong.id === id?'song-item-name': 'song-item-name-check'" v-if="!showHtml">{{ name }}</span>
       <span :class="clazz === 0?'song-item-singer-name': 'song-item-singer-name-check'" v-if="showHtml" v-html="author + album"></span>
-      <span :class="clazz === 0?'song-item-singer-name': 'song-item-singer-name-check'" v-if="!showHtml">{{ author + ' - ' + album }}</span>
+      <span :class="store.state.currentSong.id === id?'song-item-singer-name': 'song-item-singer-name-check'" v-if="!showHtml">{{ author + ' - ' + album }}</span>
     </div>
     <div class="song-item-right">
       <van-icon name="video" size="1.5rem" color="#8f8f8f"/>
@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import {useStore} from "vuex";
+
 export default {
   props: {
     rankNumber: {
@@ -66,9 +68,20 @@ export default {
       type: Boolean,
       default: false,
       require: true
+    },
+    id: {
+      type: Number,
+      default: 0,
+      require: true
     }
   },
-  name: "song"
+  name: "song",
+  setup() {
+    let store = useStore()
+    return {
+      store
+    }
+  }
 }
 </script>
 
@@ -97,13 +110,21 @@ export default {
     color: #8f8f8f;
     display: block;
     margin: 3px auto;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   .song-item-singer-name-check{
     float: left;
     font-size: 12px;
     display: block;
     margin: 3px auto;
+    width: 100%;
     color: #ff0039;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   .rank-number{
     font-size: 18px;
@@ -120,6 +141,8 @@ export default {
     /*position: absolute;*/
     /*left: 40px;*/
     float: left;
+    display: inline-block;
+    width: 80%;
   }
   .rank-number-red{
     font-size: 22px;

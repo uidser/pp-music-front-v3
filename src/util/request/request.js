@@ -23,6 +23,9 @@ service.interceptors.response.use(
     const res = response.data
     if (res.code === 403) {
       Toast('请登录')
+      if (window.location.href.substring(window.location.href.lastIndexOf('/'), window.location.href.length) !== '/login') {
+        window.location.href = '/login'
+      }
       return Promise.reject(new Error('请登录'))
     }
     if (res.code !== 200) {

@@ -12,12 +12,12 @@
     </div>
     <div class="song-detail-box">
       <div class="song-name">
-        <span class="song-name-span" ref="songNameSpan"><p :id="store.state.currentSongNameAnimation?'song-name-p-animation': 'song-name-p'" ref="songNameP">{{ store.getters.currentSingerName.split('-')[0] }}</p></span>
+        <span class="song-name-span" ref="songNameSpan"><p :id="store.state.currentSongNameAnimation?'song-name-p-animation': 'song-name-p'" ref="songNameP">{{ store.state.currentSong.name }}</p></span>
         <van-icon name="like-o" color="#8f8f8f" size="2rem" style="float: right;" :badge="store.state.currentMediaLikeQuantity" :badge-props="{color: '#8f8f8f'}" />
       </div>
       <div class="song-owner-name-and-button">
-        <div class="play-owner-box">
-          <span class="play-owner-span" ref="playOwnerSpan"><p :id="store.state.currentAuthorAnimation?'play-owner-p-animation': 'play-owner-p'" ref="playOwnerP">{{ store.getters.currentSingerName.split('-')[1] }}</p></span>
+        <div class="play-owner-box" @click="showSinger">
+          <span class="play-owner-span" ref="playOwnerSpan"><p :id="store.state.currentAuthorAnimation?'play-owner-p-animation': 'play-owner-p'" ref="playOwnerP">{{ store.state.currentSong.author }}</p></span>
         </div>
         <div class="follow-button">
           <span class="follow-span">关注</span>
@@ -62,6 +62,17 @@
         </div>
       </div>
     </div>
+    <van-action-sheet v-model:show="showSingerDialog" cancel-text="取消" description="歌手" close-on-click-action>
+      <div class="singer" v-for="singer in singerList" :key="singer.id" @click="jump('/singer/' + singer.id)">
+        <div class="singer-picture">
+          <img width="55" :src="singer.profilePicture">
+        </div>
+        <span class="singer-name">{{ singer.name }}</span>
+        <div class="singer-button">
+          <span class="singer-follow-span">&nbsp;&nbsp;+ 关注&nbsp;&nbsp;</span>
+        </div>
+      </div>
+    </van-action-sheet>
   </div>
 </template>
 
@@ -70,7 +81,8 @@ import {onBeforeUnmount, onMounted, ref} from "vue"
 import {useRouter} from "vue-router"
 import {Toast} from "vant"
 import {useStore} from "vuex"
-import pubSub from "pubsub-js";
+import pubSub from "pubsub-js"
+import mediaApi from '@/api/media/media'
 export default {
   name: "play",
   setup() {
@@ -95,6 +107,8 @@ export default {
     let songNameSpan = ref()
     let playOwnerP = ref()
     let playOwnerSpan = ref()
+    let showSingerDialog = ref(false)
+    let singerList = ref([])
     onBeforeUnmount(() => {
       pubSub.unsubscribe('action')
       pubSub.unsubscribe('changeIsPlayPubSub')
@@ -261,6 +275,17 @@ export default {
       await clearInterval(computeTime)
       await clearInterval(timer)
     }
+    const showSinger = () => {
+      showSingerDialog.value = true
+      mediaApi.getAuthor(store.state.currentSong.id).then(
+        response => {
+          singerList.value = response.data
+        }
+      )
+    }
+    const jump = (path) => {
+      router.push(path)
+    }
     return {
       finished,
       loading,
@@ -282,6 +307,10 @@ export default {
       songNameSpan,
       playOwnerP,
       playOwnerSpan,
+      showSingerDialog,
+      singerList,
+      jump,
+      showSinger,
       playerMusic,
       stopMusic,
       back,
@@ -464,5 +493,35 @@ export default {
     100% {
       transform: translateX(-100%);
     }
+  }
+  .singer-button{
+    display: flex;
+    align-items: center;
+    border-radius: 15px;
+    border: 1.5px solid #8f8f8f;
+    position: absolute;
+    right: 5vw;
+    height: 18px;
+  }
+  .singer-follow-span{
+    font-size: 10px;
+    color: #8f8f8f;
+    font-weight: bolder;
+  }
+  .singer-picture{
+    display: inline-block;
+    border-radius: 50%;
+    width: 55px;
+    height:55px;
+    overflow: hidden;
+  }
+  .singer{
+    display: flex;
+    align-items: center;
+    width: 90vw;
+    margin: 10px auto;
+  }
+  .singer-name{
+    margin-left: 2vw;
   }
 </style>

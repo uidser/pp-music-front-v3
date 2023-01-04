@@ -16,5 +16,12 @@ export default {
       method: 'get',
       params: categoryIdList
     })
+  },
+  searchSingleSingerSong(singerId, queryVo) {
+    return request({
+      url: BASE_SEARCH_API + '/searchSingleSingerSong/' + singerId,
+      method: 'get',
+      params: queryVo
+    })
   }
 }

@@ -23,16 +23,16 @@
           <span id="certification-span-top">入驻艺人</span>
         </div>
         <span id="fans-quantity">0 关注&nbsp;&nbsp;{{ singer.fansQuantity }} 粉丝</span>
-        <div id="singer-name-other-button">
-          <div class="singer-name-other-button-item">
-            <van-icon name="smile-o" size="1rem" color="#8f8f8f" class="singer-name-other-button-icon"/>
-            <span class="singer-name-other-button-span">扑通小组</span>
-          </div>
-          <div class="singer-name-other-button-item">
-            <van-icon name="cart-circle-o" size="1rem" color="#8f8f8f" class="singer-name-other-button-icon"/>
-            <span class="singer-name-other-button-span">周边商品</span>
-          </div>
-        </div>
+<!--        <div id="singer-name-other-button">-->
+<!--          <div class="singer-name-other-button-item">-->
+<!--            <van-icon name="smile-o" size="1rem" color="#8f8f8f" class="singer-name-other-button-icon"/>-->
+<!--            <span class="singer-name-other-button-span">扑通小组</span>-->
+<!--          </div>-->
+<!--          <div class="singer-name-other-button-item">-->
+<!--            <van-icon name="cart-circle-o" size="1rem" color="#8f8f8f" class="singer-name-other-button-icon"/>-->
+<!--            <span class="singer-name-other-button-span">周边商品</span>-->
+<!--          </div>-->
+<!--        </div>-->
       </div>
       <div id="nav-and-other-list">
         <div id="nav">
@@ -43,7 +43,7 @@
         </div>
         <div id="song-list-and-search-box" v-show="navNum === 1">
           <div id="search-box">
-            <van-search shape="round" placeholder="搜索此音乐人演唱的歌曲" style="width: 95%; margin: 0 auto;"/>
+            <van-search shape="round" placeholder="搜索此音乐人演唱的歌曲" v-model="searchKeyword" style="width: 95%; margin: 0 auto;" @input="search"/>
           </div>
           <div id="play-and-sort-button">
             <div id="play-and-sort-button-left" @click="playAll">
@@ -85,7 +85,7 @@
                 <van-icon name="play" size="1rem" color="#FFF" id="play-icon"/>
                 <span id="play-span">播放</span>
               </div>
-              <span id="feature-more-span">更多 ></span>
+              <span id="feature-more-span" @click="navNum = 1">更多 ></span>
             </div>
             <div id="feature-song-list">
               <div class="three-feature-box" v-for="(songThree, index) in recommendSongList" :key="index">
@@ -204,124 +204,14 @@
             <van-icon name="descending" size="1rem" color="#8f8f8f"/>
           </div>
           <div id="album-list-box">
-            <div class="album-item">
+            <div class="album-item" v-for="album in singer.albumList" :key="album.id" @click="jump('/album/' + album.id)">
               <div class="cd-box"></div>
               <div class="album-profile-picture-box">
-                <img src="/img/manleng-album.png" width="60"/>
+                <img :src="album.profilePicture" width="60"/>
               </div>
               <div class="album-info">
-                <span class="album-name">我好吗？- 太阳照常升起</span>
-                <span class="album-publish-time-and-song-quantity">2019-05-06&nbsp;&nbsp;10首</span>
-              </div>
-              <span class="arrows">></span>
-            </div>
-            <div class="album-item">
-              <div class="cd-box"></div>
-              <div class="album-profile-picture-box">
-                <img src="/img/manleng-album.png" width="60"/>
-              </div>
-              <div class="album-info">
-                <span class="album-name">我好吗？- 太阳照常升起</span>
-                <span class="album-publish-time-and-song-quantity">2019-05-06&nbsp;&nbsp;10首</span>
-              </div>
-              <span class="arrows">></span>
-            </div>
-            <div class="album-item">
-              <div class="cd-box"></div>
-              <div class="album-profile-picture-box">
-                <img src="/img/manleng-album.png" width="60"/>
-              </div>
-              <div class="album-info">
-                <span class="album-name">我好吗？- 太阳照常升起</span>
-                <span class="album-publish-time-and-song-quantity">2019-05-06&nbsp;&nbsp;10首</span>
-              </div>
-              <span class="arrows">></span>
-            </div>
-            <div class="album-item">
-              <div class="cd-box"></div>
-              <div class="album-profile-picture-box">
-                <img src="/img/manleng-album.png" width="60"/>
-              </div>
-              <div class="album-info">
-                <span class="album-name">我好吗？- 太阳照常升起</span>
-                <span class="album-publish-time-and-song-quantity">2019-05-06&nbsp;&nbsp;10首</span>
-              </div>
-              <span class="arrows">></span>
-            </div>
-            <div class="album-item">
-              <div class="cd-box"></div>
-              <div class="album-profile-picture-box">
-                <img src="/img/manleng-album.png" width="60"/>
-              </div>
-              <div class="album-info">
-                <span class="album-name">我好吗？- 太阳照常升起</span>
-                <span class="album-publish-time-and-song-quantity">2019-05-06&nbsp;&nbsp;10首</span>
-              </div>
-              <span class="arrows">></span>
-            </div>
-            <div class="album-item">
-              <div class="cd-box"></div>
-              <div class="album-profile-picture-box">
-                <img src="/img/manleng-album.png" width="60"/>
-              </div>
-              <div class="album-info">
-                <span class="album-name">我好吗？- 太阳照常升起</span>
-                <span class="album-publish-time-and-song-quantity">2019-05-06&nbsp;&nbsp;10首</span>
-              </div>
-              <span class="arrows">></span>
-            </div>
-            <div class="album-item">
-              <div class="cd-box"></div>
-              <div class="album-profile-picture-box">
-                <img src="/img/manleng-album.png" width="60"/>
-              </div>
-              <div class="album-info">
-                <span class="album-name">我好吗？- 太阳照常升起</span>
-                <span class="album-publish-time-and-song-quantity">2019-05-06&nbsp;&nbsp;10首</span>
-              </div>
-              <span class="arrows">></span>
-            </div>
-            <div class="album-item">
-              <div class="cd-box"></div>
-              <div class="album-profile-picture-box">
-                <img src="/img/manleng-album.png" width="60"/>
-              </div>
-              <div class="album-info">
-                <span class="album-name">我好吗？- 太阳照常升起</span>
-                <span class="album-publish-time-and-song-quantity">2019-05-06&nbsp;&nbsp;10首</span>
-              </div>
-              <span class="arrows">></span>
-            </div>
-            <div class="album-item">
-              <div class="cd-box"></div>
-              <div class="album-profile-picture-box">
-                <img src="/img/manleng-album.png" width="60"/>
-              </div>
-              <div class="album-info">
-                <span class="album-name">我好吗？- 太阳照常升起</span>
-                <span class="album-publish-time-and-song-quantity">2019-05-06&nbsp;&nbsp;10首</span>
-              </div>
-              <span class="arrows">></span>
-            </div>
-            <div class="album-item">
-              <div class="cd-box"></div>
-              <div class="album-profile-picture-box">
-                <img src="/img/manleng-album.png" width="60"/>
-              </div>
-              <div class="album-info">
-                <span class="album-name">我好吗？- 太阳照常升起</span>
-                <span class="album-publish-time-and-song-quantity">2019-05-06&nbsp;&nbsp;10首</span>
-              </div>
-              <span class="arrows">></span>
-            </div>
-            <div class="album-item">
-              <div class="cd-box"></div>
-              <div class="album-profile-picture-box">
-                <img src="/img/manleng-album.png" width="60"/>
-              </div>
-              <div class="album-info">
-                <span class="album-name">我好吗？- 太阳照常升起</span>
-                <span class="album-publish-time-and-song-quantity">2019-05-06&nbsp;&nbsp;10首</span>
+                <span class="album-name">{{ album.name }}</span>
+                <span class="album-publish-time-and-song-quantity">{{ album.publishDate.split(' ')[0] }}&nbsp;&nbsp;10首</span>
               </div>
               <span class="arrows">></span>
             </div>
@@ -480,11 +370,12 @@
 </template>
 
 <script>
+import searchApi from "@/api/search/search"
 import singerApi from "@/api/singer/singer"
 import {onMounted, ref} from "vue"
 import {useRouter} from "vue-router"
-import {useStore} from "vuex";
-import pubSub from "pubsub-js";
+import {useStore} from "vuex"
+import pubSub from "pubsub-js"
 export default {
   name: "singer",
   setup() {
@@ -497,6 +388,7 @@ export default {
     let singer = ref({})
     let store = useStore()
     let recommendSongList = ref([[]])
+    let searchKeyword = ref('')
     function back() {
       router.go(-1)
     }
@@ -567,6 +459,18 @@ export default {
       store.commit('CHANGE_CURRENT_SONG', array[0])
       store.commit('RESET_CURRENT_MAIN_COLOR')
     }
+    const search = () => {
+      if (searchKeyword.value) {
+        searchApi.searchSingleSingerSong(singer.value.id, { queryText: searchKeyword.value }).then(
+          response => {
+            singer.value.songList = response.data
+          }
+        )
+      }
+    }
+    const jump = (path) => {
+      router.push(path)
+    }
     return {
       router,
       navNum,
@@ -577,6 +481,9 @@ export default {
       singer,
       store,
       recommendSongList,
+      searchKeyword,
+      jump,
+      search,
       playRecommendSong,
       checkSong,
       playAll,
@@ -667,6 +574,7 @@ export default {
     color: #8f8f8f;
     margin-left: 20px;
     display: block;
+    margin-bottom: 20px;
   }
   #nav{
     width: 88%;

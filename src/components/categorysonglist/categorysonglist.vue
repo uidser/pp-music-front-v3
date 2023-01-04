@@ -6,15 +6,7 @@
       <van-icon name="search" size="1.5rem" color="#8f8f8f" style="float: right;" class="play-title-icon" @click="search"/>
       <div id="top-category-nav-button-and-all-button">
         <div id="top-category-nav-button">
-          <span :class="categoryNavNum === 0?'category-span-check': 'category-span'" @click="check(0)">国语</span>
-          <span :class="categoryNavNum === 1?'category-span-check': 'category-span'" @click="check(1)">国语</span>
-          <span :class="categoryNavNum === 2?'category-span-check': 'category-span'" @click="check(2)">国语</span>
-          <span :class="categoryNavNum === 3?'category-span-check': 'category-span'" @click="check(3)">国语</span>
-          <span :class="categoryNavNum === 4?'category-span-check': 'category-span'" @click="check(4)">国语</span>
-          <span :class="categoryNavNum === 5?'category-span-check': 'category-span'" @click="check(5)">国语</span>
-          <span :class="categoryNavNum === 6?'category-span-check': 'category-span'" @click="check(6)">国语</span>
-          <span :class="categoryNavNum === 7?'category-span-check': 'category-span'" @click="check(7)">国语</span>
-          <span :class="categoryNavNum === 8?'category-span-check': 'category-span'" @click="check(8)">国语</span>
+          <span :class="categoryNavNum === category.id?'category-span-check': 'category-span'" v-for="category in categoryList" :key="category.id" @click="check(category.id)">{{ category.name }}</span>
         </div>
         <van-icon name="wap-nav" size="1.5rem" color="#8f8f8f" id="all-button"/>
       </div>
@@ -28,19 +20,20 @@
         </div>
       </div>
       <div id="category-song-list">
-        <div class="category-song-list-item" @click="toSongListDetail" v-for="songList in 15" :key="songList">
+        <div class="category-song-list-item" @click="toSongListDetail(songList.id)" v-for="songList in songListList" :key="songList.id">
           <div class="profile-picture-box">
-            <img src="/img/manleng-album.png" width="100">
+            <img :src="songList.profilePicture" width="100">
             <div class="left-box">
               <van-icon name="audio" size="0.5rem" color="#FFF" style="font-weight: bolder"/>
-              <span class="play-quantity">213.0万</span>
+              <span class="play-quantity" v-if="songList.playQuantity < 10000">{{ songList.playQuantity }}</span>
+              <span class="play-quantity" v-if="songList.playQuantity >= 10000">{{ songList.playQuantity / 10000 }}万</span>
             </div>
             <div class="right-box">
               <van-icon name="play-circle" size="1rem" color="#FFF"/>
             </div>
           </div>
           <div class="song-list-name-span-box">
-            <span class="song-list-name-span">歌单歌单歌单歌单歌</span>
+            <span class="song-list-name-span">{{ songList.name }}</span>
           </div>
         </div>
       </div>
@@ -50,13 +43,17 @@
 </template>
 
 <script>
+import songlistApi from "@/api/songlist/songlist"
+import songlistcategoryApi from "@/api/songlistcategory/songlistcategory"
 import {useRouter} from "vue-router"
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 export default {
   name: "categorysonglist",
   setup() {
     let router = useRouter()
+    let categoryList = ref([])
     let categoryNavNum = ref(0)
+    let songListList = ref([])
     const back = () => {
       router.go(-1)
     }
@@ -65,12 +62,31 @@ export default {
     }
     const check = (num) => {
       categoryNavNum.value = num
+      getSongListByCategoryId(categoryNavNum.value, { current: 1, limit: 10 })
     }
-    const toSongListDetail = () => {
-      router.push('songListDetail')
+    const toSongListDetail = (id) => {
+      router.push('songListDetail' + '/' + id)
     }
+    function getSongListByCategoryId(categoryId, queryVo) {
+      songlistApi.getByCategoryId(categoryId, queryVo).then(
+        response => {
+          songListList.value = response.data
+        }
+      )
+    }
+    onMounted(() => {
+      songlistcategoryApi.getAll().then(
+        response => {
+          categoryList.value = response.data
+          categoryNavNum.value = categoryList.value[0].id
+          getSongListByCategoryId(categoryNavNum.value, { current: 1, limit: 10 })
+        }
+      )
+    })
     return {
       categoryNavNum,
+      categoryList,
+      songListList,
       toSongListDetail,
       back,
       search,

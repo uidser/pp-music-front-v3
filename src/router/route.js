@@ -9,13 +9,13 @@ const route = createRouter({
             children: [
                 {
                     path: '',
-                    redirect: 'index',
+                    redirect: 'musicBuild',
                     component: () => import('@/components/index/index/index'),
                     children: [
-                        {
-                            path: 'index',
-                            component: () => import('@/components/index/recommend/recommend')
-                        },
+                        // {
+                        //     path: 'index',
+                        //     component: () => import('@/components/index/recommend/recommend')
+                        // },
                         {
                             path: 'musicBuild',
                             component: () => import('@/components/index/musicbuild/musicbuild')
@@ -70,7 +70,7 @@ const route = createRouter({
                     ]
                 },
                 {
-                    path: 'songListDetail',
+                    path: 'songListDetail/:id',
                     component: () => import('@/components/songlistdetail/songlistdetail')
                 },
                 {
@@ -84,6 +84,10 @@ const route = createRouter({
                 {
                     path: 'login',
                     component: () => import('@/components/login/login')
+                },
+                {
+                    path: 'album/:id',
+                    component: () => import('@/components/album/album')
                 }
             ]
         }
